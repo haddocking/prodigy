@@ -20,4 +20,4 @@ Please note that the complex has to contain only TWO interacting chains, labelle
 # Requirement
 ICs_parameters.sh requires python 2.7 version.
 
-NISparameters_0.5.sh requires naccess installed.
+NISparameters_0.5.sh requires naccess to be installed. See:[www.bioinf.manchester.ac.uk/naccess](www.bioinf.manchester.ac.uk/naccess).
