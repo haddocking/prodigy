@@ -24,11 +24,13 @@ NISparameters_0.5.sh requires naccess to be installed. See:[www.bioinf.mancheste
 
 # Licensing
 
-If ICs calcualtion script packages was useful to your research, please cite us
+- If ICs calcualtion script packages was useful to your research, please cite us
 
 **Anna Vangone and Alexandre M.J.J. Bonvin**: Contacts-based prediction of binding affinity in protein-protein complexes. Revision in eLife (2015).
 
-If NIS calculation script was useful to your research, please cite us
+
+
+- If NIS calculation script was useful to your research, please cite us
 
 **Panagiotis L. Kastritis , João P.G.L.M. Rodrigues, Gert E. Folkers, Rolf Boelens, Alexandre M.J.J. Bonvin**: Proteins Feel More Than They See: Fine-Tuning of Binding Affinity by Properties of the Non-Interacting Surface. *Journal of Molecular Biology*, 14, 2632–2652 (2014). 
 
