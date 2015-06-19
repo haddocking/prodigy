@@ -20,4 +20,16 @@ Please note that the complex has to contain only TWO interacting chains, labelle
 # Requirement
 ICs_parameters.sh requires python 2.7 version.
 
-NISparameters_0.5.sh requires naccess installed.
+NISparameters_0.5.sh requires naccess to be installed. See:[www.bioinf.manchester.ac.uk/naccess](www.bioinf.manchester.ac.uk/naccess).
+
+# Licensing
+
+If ICs calcualtion script packages was useful to your research, please cite us
+
+**Anna Vangone and Alexandre M.J.J. Bonvin**: Contacts-based prediction of binding affinity in protein-protein complexes. Revision in eLife (2015).
+
+If NIS calculation script was useful to your research, please cite us
+
+**Panagiotis L. Kastritis , João P.G.L.M. Rodrigues, Gert E. Folkers, Rolf Boelens, Alexandre M.J.J. Bonvin**: Proteins Feel More Than They See: Fine-Tuning of Binding Affinity by Properties of the Non-Interacting Surface. *Journal of Molecular Biology*, 14, 2632–2652 (2014). 
+
+Apache Licence 2.0
