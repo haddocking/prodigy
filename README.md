@@ -21,7 +21,7 @@ Please note that the complex has to contain only TWO interacting chains, labelle
 ICs_parameters.sh requires python 2.7 version.
 
 NISparameters_0.5.sh requires naccess to be installed. See:[www.bioinf.manchester.ac.uk/naccess](www.bioinf.manchester.ac.uk/naccess).
-<<<<<<< HEAD
+
 =======
 
 # Licensing
@@ -37,4 +37,4 @@ NISparameters_0.5.sh requires naccess to be installed. See:[www.bioinf.mancheste
 **Panagiotis L. Kastritis , João P.G.L.M. Rodrigues, Gert E. Folkers, Rolf Boelens, Alexandre M.J.J. Bonvin**: Proteins Feel More Than They See: Fine-Tuning of Binding Affinity by Properties of the Non-Interacting Surface. *Journal of Molecular Biology*, 14, 2632–2652 (2014). 
 
 Apache Licence 2.0
->>>>>>> 563eebfb83f51bd0c6128e57111d5918f143b98f
+
