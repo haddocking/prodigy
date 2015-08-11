@@ -90,16 +90,26 @@ def parse_structure(path):
 
     return s
 
-def calculate_ic(structure, d_cutoff):
+def calculate_ic(structure, d_cutoff=5.5, selection=None):
     """
     Calculates intermolecular contacts in a parsed structure object.
     """
     atom_list = list(structure.get_atoms())
     ns = NeighborSearch(atom_list)
     all_list = ns.search_all(radius=d_cutoff, level='R')
-    ic_list = [c for c in all_list if c[0].parent.id != c[1].parent.id]
 
-    print('[+] No. of intermolecular contacts: {0}/{1}'.format(len(ic_list), len(all_list)))
+    if selection:
+        _sd = selection_dict
+        _chain = lambda x: x.parent.id
+        ic_list = [c for c in all_list if (_chain(c[0]) in _sd and _chain(c[1]) in _sd)
+                    and (_sd[_chain(c[0])] != _sd[_chain(c[1])]) ]
+    else:
+        ic_list = [c for c in all_list if c[0].parent.id != c[1].parent.id]
+
+    if not ic_list:
+        raise ValueError('[!] No contacts found for selection')
+
+    print('[+] No. of intermolecular contacts: {0}'.format(len(ic_list)))
     return ic_list
 
 def analyse_contacts(contact_list):
@@ -156,13 +166,50 @@ if __name__ == "__main__":
     ap.add_argument('--outfmt', default='tabular', choices=['csv', 'tabular'],
                     help='Output file format')
 
+    _co_help = """
+    By default, all intermolecular contacts are taken into consideration,
+    a molecule being defined as an isolated group of amino acids sharing
+    a common chain identifier. In specific cases, for example
+    antibody-antigen complexes, some chains should be considered as a
+    single molecule.
+
+    Use the --selection option to provide collections of chains that should
+    be considered for the calculation. Separate by a space the chains that
+    are to be considered _different_ molecules. Use commas to include multiple
+    chains as part of a single group:
+
+    --selection A B => Contacts calculated (only) between chains A and B.
+    --selection A,B C => Contacts calculated (only) between chains A and C; and B and C.
+    --selection A B C => Contacts calculated (only) between chains A and B; B and C; and A and C.
+    """
+    sel_opt = ap.add_argument_group('Selection Options', description=_co_help)
+    sel_opt.add_argument('--selection', nargs='+', metavar=('A B', 'A,B C'))
+
     cmd = ap.parse_args()
+    # dGcalc = 0.09459 ICscharged_charged
+            #    0.10007 ICscharged_apolar
+            #    -0.19577 ICspolar_polar
+            #    0.22671 ICspolar_apolar
+            #    -0.18681 %NISapolar
+            #    -0.13810 %NIScharged
+            #    15.9433
+
 
     P = PDBParser(QUIET=1)
 
+    selection_dict = {}
+    if cmd.selection:
+        for igroup, group in enumerate(cmd.selection):
+            chains = group.split(',')
+            for chain in chains:
+                if chain in selection_dict:
+                    errmsg = '[!] Selections must be disjoint sets: {0} is repeated'.format(chain)
+                    raise ValueError(errmsg)
+                selection_dict[chain] = igroup
+
     for pdbf in cmd.pdb_list:
         structure = parse_structure(pdbf)
-        ic_network = calculate_ic(structure, d_cutoff=cmd.cutoff)
+        ic_network = calculate_ic(structure, d_cutoff=cmd.cutoff, selection=selection_dict)
         bins = analyse_contacts(ic_network)
 
         if isinstance(cmd.outfile, str):
