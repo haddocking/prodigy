@@ -1,40 +1,37 @@
-# binding_affinity
-Repository containing various scripts to predict the binding affinity of protein-protein complexes from structure
+#Binding Affinity Prediction Tools
+Collection of scripts to calculate predictive indexes of binding affinity values
+for protein-protein complexes from atomic structures.
 
-# About
-These scripts allow to calculate properties such as inter-residue distances (ICs) and non-interacting surface properties (NIC) in protein-protein complexes. Such values can be combined with specific weights to predict the binding affinity of the protein complex.
+The scripts implement several binding affinity predictors:
+* [Non-Interacting Surface (NIS) model](http://www.ncbi.nlm.nih.gov/pubmed/24768922)
+* [Contacts-based model](http://www.ncbi.nlm.nih.gov/pubmed/26193119)
 
-#Usage:
-ICs: Copy ICs-parameters.sh, icsdistance.py and filter_property.py in the same directory.
-     Launch the program as:
+#Installation & Dependencies
+The scripts rely on [Biopython](www.biopython.org) to validate the PDB structures and calculate interatomic
+distances. [NACCESS](www.bioinf.manchester.ac.uk/naccess) is also required for calculating
+the buried surface area.
 
-         ./ICs-parameters.sh <pdb-file>
-          Example: ./ICs-parameter.sh 2OOB.pdb
+To install and use the scripts, just clone the git repository or download the tarball zip
+archive. Make sure NACCESS and Biopython are both accessible to the Python scripts through
+standard environment variables ($PATH and $PYTHONPATH).
 
-NIS: Launch the program as:
+#Usage
+* __Non-Interacting Surface (NIS) model__  
+Not yet implemented.
 
-     ./parameter_0.5.sh <pdb-file>
+* __Contacts-based model__  
+```bash
+python calculate_IC.py [-outfile <file name>] <pdb file>
+```
 
-Please note that the complex has to contain only TWO interacting chains, labelled as A and B.
+#License
+These utilities are open-source and licensed under the Apache License 2.0. For more information
+read the LICENSE file.
 
-# Requirement
-ICs_parameters.sh requires python 2.7 version.
-
-NISparameters_0.5.sh requires naccess to be installed. See:[www.bioinf.manchester.ac.uk/naccess](www.bioinf.manchester.ac.uk/naccess).
-
-=======
-
-# Licensing
-
-- If ICs calcualtion scripts package was useful to your research, please cite us
+#Citing us
+If any of the predictive models or scripts are useful to you, consider citing them in your
+publications:
 
 **Anna Vangone and Alexandre M.J.J. Bonvin**: Contacts-based prediction of binding affinity in protein-protein complexes. Revision in eLife (2015).
 
-
-
-- If NIS calculation script was useful to your research, please cite us
-
-**Panagiotis L. Kastritis , João P.G.L.M. Rodrigues, Gert E. Folkers, Rolf Boelens, Alexandre M.J.J. Bonvin**: Proteins Feel More Than They See: Fine-Tuning of Binding Affinity by Properties of the Non-Interacting Surface. *Journal of Molecular Biology*, 14, 2632–2652 (2014). 
-
-Apache Licence 2.0
-
+**Panagiotis L. Kastritis , João P.G.L.M. Rodrigues, Gert E. Folkers, Rolf Boelens, Alexandre M.J.J. Bonvin**: Proteins Feel More Than They See: Fine-Tuning of Binding Affinity by Properties of the Non-Interacting Surface. *Journal of Molecular Biology*, 14, 2632–2652 (2014).
