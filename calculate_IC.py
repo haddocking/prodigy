@@ -279,6 +279,7 @@ if __name__ == "__main__":
     ap.add_argument('pdb_list', nargs='+', help='Structure(s) to analyse in PDB format')
     ap.add_argument('--distance-cutoff', default=5.5, help='Distance cutoff to calculate ICs')
     ap.add_argument('--acc-threshold', default=0.05, help='Accessibility threshold for BSA analysis')
+    ap.add_argument('--quiet', action='store_true', help='Outputs only the predicted affinity value')
     # ap.add_argument('--outfile', default=sys.stdout, help='Output file where to write analysis')
     # ap.add_argument('--outfmt', default='tabular', choices=['csv', 'tabular'],
     #                 help='Output file format')
@@ -303,6 +304,10 @@ if __name__ == "__main__":
     sel_opt.add_argument('--selection', nargs='+', metavar=('A B', 'A,B C'))
 
     cmd = ap.parse_args()
+
+    if cmd.quiet:
+        _stdout = sys.stdout
+        sys.stdout = open(os.devnull, 'w')
 
     P = PDBParser(QUIET=1)
     io = PDBIO()
@@ -333,6 +338,10 @@ if __name__ == "__main__":
         # Affinity Calculation
         ba_val = predict_affinity(bins['CC'], bins['AC'], bins['PP'], bins['AP'], nis_a, nis_c)
         print('[+] Predicted binding affinity: {0:8.3f}'.format(ba_val))
+
+        if cmd.quiet:
+            sys.stdout = _stdout
+            print('{0}\t{1:8.3f}'.format(pdbf, ba_val))
 
         # if isinstance(cmd.outfile, str):
         #     cmd.outfile = open(cmd.outfile, 'w')
