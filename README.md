@@ -6,14 +6,37 @@ The scripts implement several binding affinity predictors:
 * [Non-Interacting Surface (NIS) model](http://www.ncbi.nlm.nih.gov/pubmed/24768922)
 * [Contacts-based model](http://www.ncbi.nlm.nih.gov/pubmed/26193119)
 
+#Quick & Dirty Installation
+```bash
+git clone http://github.com/biopython/biopython.git
+cd biopython
+sudo python setup.py install # Alternatively, install locally but fix $PYTHONPATH
+
+git clone http://github.com/JoaoRodrigues/freesasa
+cd freesasa
+autoreconf -i
+./configure
+make && sudo make install # Alternatively, install locally but fix $PATH
+
+git clone http://github.com/haddocking/binding-affinity
+# Have fun!
+```
+
 #Installation & Dependencies
-The scripts rely on [Biopython](www.biopython.org) to validate the PDB structures and calculate interatomic
-distances. [NACCESS](www.bioinf.manchester.ac.uk/naccess) is also required for calculating
-the buried surface area.
+The scripts rely on [Biopython](www.biopython.org) to validate the PDB structures and calculate
+interatomic distances. [freesasa](https://github.com/mittinatten/freesasa), with the parameter
+set used in NACCESS ([Chothia, 1976](http://www.ncbi.nlm.nih.gov/pubmed/994183)), is also
+required for calculating the buried surface area. For convenience, we provide a fork with these
+parameter set ([link](https://github.com/JoaoRodrigues/freesasa)).
+
+**DISCLAIMER**: given the different software to calculate solvent accessiblity, predicted
+values might differ (very slightly) from those published in the reference implementations.
+The correlation of the actual atomic accessibilities is over 0.99, so we expect these
+differences to be very minor.
 
 To install and use the scripts, just clone the git repository or download the tarball zip
-archive. Make sure NACCESS and Biopython are both accessible to the Python scripts through
-standard environment variables ($PATH and $PYTHONPATH).
+archive. Make sure the `freesasa` executable and Biopython are accessible to the Python scripts
+through standard environment variables ($PATH and $PYTHONPATH).
 
 #Usage
 * __Non-Interacting Surface (NIS) model__  
@@ -21,7 +44,7 @@ Not yet implemented.
 
 * __Contacts-based model__  
 ```bash
-python calculate_IC.py [-outfile <file name>] <pdb file>
+python calculate_IC.py <pdb file>
 ```
 
 #License
