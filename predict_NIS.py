@@ -119,6 +119,26 @@ def parse_freesasa_output(fpath):
 
     return asa_data, rsa_data
 
+def which(program):
+    """
+    http://stackoverflow.com/a/377028
+    """
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = os.path.abspath(os.path.expanduser(path.strip('"')))
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    raise Exception('Could not find `freesasa` in $PATH')
+
 def execute_freesasa(structure, pdb_selection=None):
     """
     Runs the freesasa executable on a PDB file.
@@ -131,11 +151,7 @@ def execute_freesasa(structure, pdb_selection=None):
         http://www.ncbi.nlm.nih.gov/pubmed/994183
     """
 
-    try:
-        with open(os.devnull, 'w') as void:
-            subprocess.call('freesasa -h', shell=True, stderr=void)
-    except OSError as e:
-        raise Exception('Could not execute `freesasa`: {0}'.format(e))
+    freesasa = which('freesasa')
 
     # Rewrite PDB using Biopython to have a proper format
     # freesasa is very picky with line width (80 characters or fails!)
@@ -155,8 +171,9 @@ def execute_freesasa(structure, pdb_selection=None):
 
     # Run freesasa
     # Save atomic asa output to another temp file
+    params = os.path.join(os.path.dirname(freesasa), '../', 'share', 'naccess.config')
     _outf = tempfile.NamedTemporaryFile()
-    cmd = 'freesasa -B {0} -L -d 0.05 {1}'.format(_outf.name, _pdbf.name)
+    cmd = 'freesasa -B {0} -L -d 0.05 -c {2} {1}'.format(_outf.name, _pdbf.name, params)
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
 
@@ -189,7 +206,7 @@ def analyse_nis(sasa_dict, acc_threshold=0.05, selection=None):
             count[aa_index] += 1
 
     percentages = map(lambda x: 100*x/sum(count), count)
-    print('[+] No. of buried interface residues: {0}'.format(sum(count)))
+    # print('[+] No. of buried interface residues: {0}'.format(sum(count)))
     return percentages
 
 def calculate_interface_atoms(cmplx_asa, free_asa, sasa_diff_threshold=1):
@@ -238,10 +255,7 @@ if __name__ == "__main__":
     ap.add_argument('pdbf', help='Structure to analyse in PDB format')
     ap.add_argument('--distance-cutoff', default=5.5, help='Distance cutoff to calculate ICs')
     ap.add_argument('--acc-threshold', default=0.05, help='Accessibility threshold for BSA analysis')
-    ap.add_argument('--quiet', action='store_true', help='Outputs only the predicted affinity value')
-    # ap.add_argument('--outfile', default=sys.stdout, help='Output file where to write analysis')
-    # ap.add_argument('--outfmt', default='tabular', choices=['csv', 'tabular'],
-    #                 help='Output file format')
+    ap.add_argument('-q', '--quiet', action='store_true', help='Outputs only the predicted affinity value')
 
     _co_help = """
     By default, all intermolecular contacts are taken into consideration,
@@ -302,7 +316,10 @@ if __name__ == "__main__":
 
     # Affinity Calculation
     ba_val = predict_affinity(nis_c, nis_p, interface_atoms)
-    print('[+] Predicted binding affinity: {0:8.3f}'.format(ba_val))
+    print('[+] Percentage of polar NIS residues: {0}'.format(nis_p))
+    print('[+] Percentage of charged NIS residues: {0}'.format(nis_c))
+    print('[+] No. of (buried) interface atoms: {0}'.format(interface_atoms))
+    print('[++] Predicted binding affinity: {0:8.3f}'.format(ba_val))
 
     if cmd.quiet:
         sys.stdout = _stdout
