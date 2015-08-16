@@ -163,7 +163,7 @@ def execute_freesasa(structure, pdb_selection=None):
     Runs the freesasa executable on a PDB file.
 
     You can get the executable from:
-        https://github.com/JoaoRodrigues/freesasa
+        https://github.com/mittinatten/freesasa
 
     The binding affinity models are calibrated with the parameter
     set for vdW radii used in NACCESS:
@@ -185,6 +185,8 @@ def execute_freesasa(structure, pdb_selection=None):
                 return 1
             elif not pdb_selection:
                 return 1
+            else:
+                return 0
 
     _pdbf = tempfile.NamedTemporaryFile()
     io.set_structure(structure)
@@ -238,24 +240,6 @@ def predict_affinity(ic_cc, ic_ca, ic_pp, ic_pa, p_nis_a, p_nis_c):
     return 0.09459*ic_cc + 0.10007*ic_ca + -0.19577*ic_pp + 0.22671*ic_pa \
         + -0.18681*p_nis_a + -0.13810*p_nis_c + 15.9433
 
-# def write_contacts(contact_data, outfile, oformat):
-#     """
-#     Outputs the result of the analysis to a file or stdout.
-#     """
-#
-#     # Define format here
-#     oformat_dict = {
-#         'csv': '{0},{1}\n',
-#         'tabular': '{0}\t{1}\n',
-#         }
-#
-#     _ostr = oformat_dict[oformat]
-#
-#     print('[+] Writing analysis output to: {0}'.format(outfile.name))
-#     for contact_type in sorted(contact_data):
-#         n_matches = contact_data[contact_type]
-#         outfile.write(_ostr.format(contact_type, n_matches))
-
 def _check_path(path):
     """
     Checks if a file is readable.
@@ -263,7 +247,7 @@ def _check_path(path):
 
     full_path = os.path.abspath(path)
     if not os.path.isfile(full_path):
-        raise IOError('Could not read file: {0}'.format(path), file=sys.stderr)
+        raise IOError('Could not read file: {0}'.format(path))
     return full_path
 
 if __name__ == "__main__":
@@ -276,7 +260,7 @@ if __name__ == "__main__":
         raise ImportError(e)
 
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=RawTextHelpFormatter)
-    ap.add_argument('pdb_list', nargs='+', help='Structure(s) to analyse in PDB format')
+    ap.add_argument('pdbf', help='Structure to analyse in PDB format')
     ap.add_argument('--distance-cutoff', default=5.5, help='Distance cutoff to calculate ICs')
     ap.add_argument('--acc-threshold', default=0.05, help='Accessibility threshold for BSA analysis')
     ap.add_argument('--quiet', action='store_true', help='Outputs only the predicted affinity value')
@@ -312,8 +296,13 @@ if __name__ == "__main__":
     P = PDBParser(QUIET=1)
     io = PDBIO()
 
-    selection_dict = {}
+    # Parse structure
+    pdb_path = _check_path(cmd.pdbf)
+    structure = parse_structure(pdb_path)
+
+    # Make selection dict from user option or PDB chains
     if cmd.selection:
+        selection_dict = {}
         for igroup, group in enumerate(cmd.selection):
             chains = group.split(',')
             for chain in chains:
@@ -321,29 +310,21 @@ if __name__ == "__main__":
                     errmsg = 'Selections must be disjoint sets: {0} is repeated'.format(chain)
                     raise ValueError(errmsg)
                 selection_dict[chain] = igroup
+    else:
+        selection_dict = dict([(c.id, nc) for nc, c in enumerate(structure.get_chains())])
 
-    for pdbf in cmd.pdb_list:
+    # Contacts
+    ic_network = calculate_ic(structure, d_cutoff=cmd.distance_cutoff, selection=selection_dict)
+    bins = analyse_contacts(ic_network)
 
-        pdbf = _check_path(pdbf)
-        structure = parse_structure(pdbf)
+    # SASA
+    cmplx_sasa = execute_freesasa(structure, pdb_selection=selection_dict)
+    nis_a, nis_c, _ = analyse_nis(cmplx_sasa, acc_threshold=cmd.acc_threshold, selection=selection_dict)
 
-        # Contacts
-        ic_network = calculate_ic(structure, d_cutoff=cmd.distance_cutoff, selection=selection_dict)
-        bins = analyse_contacts(ic_network)
+    # Affinity Calculation
+    ba_val = predict_affinity(bins['CC'], bins['AC'], bins['PP'], bins['AP'], nis_a, nis_c)
+    print('[+] Predicted binding affinity: {0:8.3f}'.format(ba_val))
 
-        # BSA
-        cmplx_sasa = execute_freesasa(structure)
-        nis_a, nis_c, _ = analyse_nis(cmplx_sasa, acc_threshold=cmd.acc_threshold, selection=selection_dict)
-
-        # Affinity Calculation
-        ba_val = predict_affinity(bins['CC'], bins['AC'], bins['PP'], bins['AP'], nis_a, nis_c)
-        print('[+] Predicted binding affinity: {0:8.3f}'.format(ba_val))
-
-        if cmd.quiet:
-            sys.stdout = _stdout
-            print('{0}\t{1:8.3f}'.format(pdbf, ba_val))
-
-        # if isinstance(cmd.outfile, str):
-        #     cmd.outfile = open(cmd.outfile, 'w')
-        # with cmd.outfile as handle:
-        #     write_contacts(bins, nis_a, nis_c, handle, cmd.outfmt)
+    if cmd.quiet:
+        sys.stdout = _stdout
+        print('{0}\t{1:8.3f}'.format(pdb_path, ba_val))
