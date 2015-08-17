@@ -39,7 +39,9 @@ through standard environment variables ($PATH and $PYTHONPATH).
 
 #Usage
 * __Non-Interacting Surface (NIS) model__  
+```bash
 python predict_NIS.py <pdb file>
+```
 
 * __Contacts-based model__  
 ```bash
@@ -54,6 +56,6 @@ read the LICENSE file.
 If any of the predictive models or scripts are useful to you, consider citing them in your
 publications:
 
-**Anna Vangone and Alexandre M.J.J. Bonvin**: Contacts-based prediction of binding affinity in protein-protein complexes. Revision in eLife (2015).
+**Anna Vangone and Alexandre M.J.J. Bonvin**: Contacts-based prediction of binding affinity in protein-protein complexes. Revision in eLife (2015) ([link](http://www.ncbi.nlm.nih.gov/pubmed/26193119))
 
-**Panagiotis L. Kastritis , João P.G.L.M. Rodrigues, Gert E. Folkers, Rolf Boelens, Alexandre M.J.J. Bonvin**: Proteins Feel More Than They See: Fine-Tuning of Binding Affinity by Properties of the Non-Interacting Surface. *Journal of Molecular Biology*, 14, 2632–2652 (2014).
+**Panagiotis L. Kastritis , João P.G.L.M. Rodrigues, Gert E. Folkers, Rolf Boelens, Alexandre M.J.J. Bonvin**: Proteins Feel More Than They See: Fine-Tuning of Binding Affinity by Properties of the Non-Interacting Surface. *Journal of Molecular Biology*, 14, 2632–2652 (2014). ([link](http://www.ncbi.nlm.nih.gov/pubmed/24768922))
