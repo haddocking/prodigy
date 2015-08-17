@@ -71,10 +71,6 @@ def parse_structure(path):
         elif not is_aa(res, standard=True):
             raise ValueError('Unsupported non-standard amino acid found: {0}'.format(res.resname))
 
-    nn_res = len(list(s.get_residues()))
-
-    print('[+] Parsed PDB file {0} ({1}/{2} residues kept)'.format(sname, nn_res, n_res))
-
     # Detect gaps and compare with no. of chains
     pep_builder = PPBuilder()
     peptides = pep_builder.build_peptides(s)
@@ -84,10 +80,10 @@ def parse_structure(path):
     if n_peptides != n_chains:
         print('[!] Structure contains gaps:', file=sys.stderr)
         for i_pp, pp in enumerate(peptides):
-            print('\t{1.parent.id} {1.resname}{1.id[1]} < Fragment {0} > {2.parent.id} {2.resname}{2.id[1]}'.format(i_pp, pp[0], pp[-1]))
+            print('\t{1.parent.id} {1.resname}{1.id[1]} < Fragment {0} > {2.parent.id} {2.resname}{2.id[1]}'.format(i_pp, pp[0], pp[-1]), file=sys.stderr)
         raise Exception('Calculation cannot proceed')
 
-    return s
+    return (s, n_chains, n_res)
 
 def calculate_ic(structure, d_cutoff=5.5, selection=None):
     """
@@ -108,7 +104,6 @@ def calculate_ic(structure, d_cutoff=5.5, selection=None):
     if not ic_list:
         raise ValueError('No contacts found for selection')
 
-    print('[+] No. of intermolecular contacts: {0}'.format(len(ic_list)))
     return ic_list
 
 def analyse_contacts(contact_list):
@@ -312,7 +307,8 @@ if __name__ == "__main__":
 
     # Parse structure
     pdb_path = _check_path(cmd.pdbf)
-    structure = parse_structure(pdb_path)
+    structure, n_chains, n_res = parse_structure(pdb_path)
+    print('[+] Parsed PDB file {0} ({1} chains, {2} residues)'.format(structure.id, n_chains, n_res))
 
     # Make selection dict from user option or PDB chains
     if cmd.selection:
@@ -329,6 +325,8 @@ if __name__ == "__main__":
 
     # Contacts
     ic_network = calculate_ic(structure, d_cutoff=cmd.distance_cutoff, selection=selection_dict)
+    print('[+] No. of intermolecular contacts: {0}'.format(len(ic_network)))
+
     bins = analyse_contacts(ic_network)
 
     # SASA

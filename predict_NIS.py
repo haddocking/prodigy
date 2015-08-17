@@ -71,10 +71,6 @@ def parse_structure(path):
         elif not is_aa(res, standard=True):
             raise ValueError('Unsupported non-standard amino acid found: {0}'.format(res.resname))
 
-    nn_res = len(list(s.get_residues()))
-
-    print('[+] Parsed PDB file {0} ({1}/{2} residues kept)'.format(sname, nn_res, n_res))
-
     # Detect gaps and compare with no. of chains
     pep_builder = PPBuilder()
     peptides = pep_builder.build_peptides(s)
@@ -87,7 +83,7 @@ def parse_structure(path):
             print('\t{1.parent.id} {1.resname}{1.id[1]} < Fragment {0} > {2.parent.id} {2.resname}{2.id[1]}'.format(i_pp, pp[0], pp[-1]))
         raise Exception('Calculation cannot proceed')
 
-    return s
+    return (s, n_chains, n_res)
 
 def parse_freesasa_output(fpath):
     """
@@ -287,7 +283,8 @@ if __name__ == "__main__":
 
     # Parse structure
     pdb_path = _check_path(cmd.pdbf)
-    structure = parse_structure(pdb_path)
+    structure, n_chains, n_res = parse_structure(pdb_path)
+    print('[+] Parsed PDB file {0} ({1} chains, {2} residues)'.format(structure.id, n_chains, n_res))
 
     # Make groups from user option or PDB chains
     if cmd.selection:
