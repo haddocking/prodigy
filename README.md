@@ -12,13 +12,14 @@ git clone http://github.com/biopython/biopython.git
 cd biopython
 sudo python setup.py install # Alternatively, install locally but fix $PYTHONPATH
 
-git clone http://github.com/mittinatten/freesasa
+git clone http://github.com/JoaoRodrigues/freesasa
 cd freesasa
-autoreconf -i
-./configure
-make && sudo make install # Alternatively, install locally but fix $PATH
+git checkout with-configure
+./configure && make
+export FREESASA_SRC="$PWD"
 
-git clone http://github.com/haddocking/binding-affinity
+git clone http://github.com/JoaoRodrigues/binding_affinity
+git checkout refactor
 # Have fun!
 ```
 
