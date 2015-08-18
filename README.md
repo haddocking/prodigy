@@ -23,6 +23,17 @@ git checkout refactor
 # Have fun!
 ```
 
+#Usage
+* __Non-Interacting Surface (NIS) model__  
+```bash
+python predict_NIS.py <pdb file>
+```
+
+* __Contacts-based model__  
+```bash
+python predict_IC.py <pdb file>
+```
+
 #Installation & Dependencies
 The scripts rely on [Biopython](www.biopython.org) to validate the PDB structures and calculate
 interatomic distances. [freesasa](https://github.com/mittinatten/freesasa), with the parameter
@@ -35,19 +46,11 @@ The correlation of the actual atomic accessibilities is over 0.99, so we expect 
 differences to be very minor.
 
 To install and use the scripts, just clone the git repository or download the tarball zip
-archive. Make sure the `freesasa` executable and Biopython are accessible to the Python scripts
-through standard environment variables ($PATH and $PYTHONPATH).
-
-#Usage
-* __Non-Interacting Surface (NIS) model__  
-```bash
-python predict_NIS.py <pdb file>
-```
-
-* __Contacts-based model__  
-```bash
-python predict_IC.py <pdb file>
-```
+archive. Make sure `freesasa` and Biopython are accessible to the Python scripts
+through the appropriate environment variables ($FREESASA_SRC and $PYTHONPATH). $FREESASA_SRC is
+required by the prediction scripts to locate the freesasa executable and atomic radii
+configuration file. It should point to the directory where freesasa is cloned into, containing
+both the src/ and config/ sub-directories.
 
 #License
 These utilities are open-source and licensed under the Apache License 2.0. For more information
