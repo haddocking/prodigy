@@ -31,6 +31,7 @@ except ImportError as e:
     raise ImportError(e)
 
 from data import aa_properties
+from config import FREESASA_BIN, FREESASA_PAR
 
 #
 def parse_structure(path):
@@ -115,25 +116,6 @@ def parse_freesasa_output(fpath):
 
     return asa_data, rsa_data
 
-def get_freesasa():
-    """
-    Use FREESASA_SRC to get the path to the executable
-    and config file.
-    """
-
-    src_dir = os.environ.get('FREESASA_SRC')
-    if not src_dir:
-        print('[!] FREESASA_SRC undefined; Read the installation instructions.', file=sys.stderr)
-        raise ValueError('[!] Undefined environment variable: FREESASA_SRC')
-
-    exe_path = os.path.join(src_dir, 'src', 'freesasa')
-    _check_path(exe_path)
-
-    config_path = os.path.join(src_dir, 'share', 'naccess.config')
-    _check_path(config_path)
-
-    return exe_path, config_path
-
 def execute_freesasa(structure, pdb_selection=None):
     """
     Runs the freesasa executable on a PDB file.
@@ -146,8 +128,11 @@ def execute_freesasa(structure, pdb_selection=None):
         http://www.ncbi.nlm.nih.gov/pubmed/994183
     """
 
-    # freesasa = which('freesasa')
-    freesasa, param_f= get_freesasa()
+    freesasa, param_f= FREESASA_BIN, FREESASA_PAR
+    if not os.path.isfile(freesasa):
+        raise IOError('[!] freesasa binary not found at `{0}`'.format(freesasa))
+    if not os.path.isfile(param_f):
+        raise IOError('[!] Atomic radii file not found at `{0}`'.format(param_f))
 
     # Rewrite PDB using Biopython to have a proper format
     # freesasa is very picky with line width (80 characters or fails!)

@@ -16,10 +16,12 @@ git clone http://github.com/JoaoRodrigues/freesasa
 cd freesasa
 git checkout with-configure
 ./configure && make
-export FREESASA_SRC="$PWD"
 
 git clone http://github.com/JoaoRodrigues/binding_affinity
 git checkout refactor
+
+# Edit the config.py to setup the paths to the freesasa binary and radii files
+
 # Have fun!
 ```
 
@@ -47,10 +49,7 @@ differences to be very minor.
 
 To install and use the scripts, just clone the git repository or download the tarball zip
 archive. Make sure `freesasa` and Biopython are accessible to the Python scripts
-through the appropriate environment variables ($FREESASA_SRC and $PYTHONPATH). $FREESASA_SRC is
-required by the prediction scripts to locate the freesasa executable and atomic radii
-configuration file. It should point to the directory where freesasa is cloned into, containing
-both the src/ and config/ sub-directories.
+through the appropriate environment variables ($PYTHONPATH).
 
 #License
 These utilities are open-source and licensed under the Apache License 2.0. For more information
