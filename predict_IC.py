@@ -82,7 +82,7 @@ def parse_structure(path):
         print('[!] Structure contains gaps:', file=sys.stderr)
         for i_pp, pp in enumerate(peptides):
             print('\t{1.parent.id} {1.resname}{1.id[1]} < Fragment {0} > {2.parent.id} {2.resname}{2.id[1]}'.format(i_pp, pp[0], pp[-1]), file=sys.stderr)
-        raise Exception('Calculation cannot proceed')
+        #raise Exception('Calculation cannot proceed')
 
     return (s, n_chains, n_res)
 
