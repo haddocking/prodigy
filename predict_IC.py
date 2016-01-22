@@ -109,6 +109,7 @@ if __name__ == "__main__":
     ap.add_argument('--distance-cutoff', type=float, default=5.5, help='Distance cutoff to calculate ICs')
     ap.add_argument('--acc-threshold', type=float, default=0.05, help='Accessibility threshold for BSA analysis')
     ap.add_argument('--temperature', type=float, default=25.0, help='Temperature (C) for Kd prediction')
+    ap.add_argument('--contact_list', action='store_true', help='Output a list of contacts')
     ap.add_argument('-q', '--quiet', action='store_true', help='Outputs only the predicted affinity value')
 
     _co_help = """
@@ -177,7 +178,16 @@ if __name__ == "__main__":
     print('[+] Percentage of apolar NIS residues: {0:3.2f}'.format(nis_a))
     print('[+] Percentage of charged NIS residues: {0:3.2f}'.format(nis_c))
     print('[++] Predicted binding affinity (kcal.mol-1): {0:8.3f}'.format(ba_val))
-    print ('[++] Predicted dissociation constant (M): {0:8.3f}'.format(kd_val))
+    print ('[++] Predicted dissociation constant (M): {0:8.3e}'.format(kd_val))
+
+    # Print out interaction network
+    if cmd.contact_list:
+        fname = struct_path[:-4] + '.ic'
+        with open(fname, 'w') as ic_handle:
+            for pair in ic_network:
+                _fmt_str = "{0.parent.id}\t{0.resname}\t{0.id[1]}\t{1.parent.id}\t{1.resname}\t{1.id[1]}".format(*pair)
+                print(_fmt_str, file=ic_handle)
+
 
     if cmd.quiet:
         sys.stdout = _stdout
