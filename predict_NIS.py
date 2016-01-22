@@ -18,158 +18,14 @@ from __future__ import print_function, division
 __author__ = ["Panagiotis Kastritis", "Joao Rodrigues"]
 
 import os
-import subprocess
 import sys
-import tempfile
-
-try:
-    from Bio.PDB import PDBParser
-    from Bio.PDB import PDBIO, Select
-    from Bio.PDB.Polypeptide import PPBuilder, is_aa
-except ImportError as e:
-    print('[!] The binding affinity prediction tools require Biopython', file=sys.stderr)
-    raise ImportError(e)
 
 from data import aa_properties
-from config import FREESASA_BIN, FREESASA_PAR
-
-#
-def parse_structure(path):
-    """
-    Parses a PDB formatter structure using Biopython's PDB Parser
-    Verifies the integrity of the structure (gaps) and its
-    suitability for the calculation (is it a complex?).
-    """
-
-    print('[+] Reading structure file: {0}'.format(path))
-    fname = os.path.basename(path)
-    sname = '.'.join(fname.split('.')[:-1])
-
-    try:
-        s = P.get_structure(sname, path)
-    except Exception as e:
-        print('[!] Structure \'{0}\' could not be parsed'.format(sname), file=sys.stderr)
-        raise Exception(e)
-
-    # Double occupancy check
-    for atom in list(s.get_atoms()):
-        if atom.is_disordered():
-            residue = atom.parent
-            sel_at = atom.selected_child
-            sel_at.altloc = ' '
-            sel_at.disordered_flag = 0
-            residue.detach_child(atom.id)
-            residue.add(sel_at)
-
-    # Remove HETATMs and solvent
-    res_list = list(s.get_residues())
-    n_res = len(res_list)
-    _ignore = lambda r: r.id[0][0] == 'W' or r.id[0][0] == 'H'
-    for res in res_list:
-        if _ignore(res):
-            chain = res.parent
-            chain.detach_child(res.id)
-        elif not is_aa(res, standard=True):
-            raise ValueError('Unsupported non-standard amino acid found: {0}'.format(res.resname))
-
-    # Detect gaps and compare with no. of chains
-    pep_builder = PPBuilder()
-    peptides = pep_builder.build_peptides(s)
-    n_peptides = len(peptides)
-    n_chains = len(set([c.id for c in s.get_chains()]))
-
-    if n_peptides != n_chains:
-        print('[!] Structure contains gaps:', file=sys.stderr)
-        for i_pp, pp in enumerate(peptides):
-            print('\t{1.parent.id} {1.resname}{1.id[1]} < Fragment {0} > {2.parent.id} {2.resname}{2.id[1]}'.format(i_pp, pp[0], pp[-1]))
-        #raise Exception('Calculation cannot proceed')
-
-    return (s, n_chains, n_res)
-
-def parse_freesasa_output(fpath):
-    """
-    Returns per-residue relative accessibility of side-chain and main-chain
-    atoms as calculated by freesasa.
-    """
-
-    asa_data, rsa_data = {}, {}
-
-    _rsa = aa_properties.rel_asa
-    _bb = set(('CA', 'C', 'N', 'O'))
-
-    s = P.get_structure('bogus', fpath.name)
-    for res in s.get_residues():
-        res_id = (res.parent.id, res.resname, res.id[1])
-        asa_mc, asa_sc, total_asa = 0, 0, 0
-        for atom in res:
-            aname = atom.name
-            at_id = (res.parent.id, res.resname, res.id[1], aname)
-            asa = atom.bfactor
-            # if atom.name in _bb:
-            #     asa_mc += asa
-            # else:
-            #     asa_sc += asa
-            total_asa += asa
-            asa_data[at_id] = asa
-
-        rsa_data[res_id] = total_asa / _rsa['total'][res.resname]
-
-    return asa_data, rsa_data
-
-def execute_freesasa(structure, pdb_selection=None):
-    """
-    Runs the freesasa executable on a PDB file.
-
-    You can get the executable from:
-        https://github.com/mittinatten/freesasa
-
-    The binding affinity models are calibrated with the parameter
-    set for vdW radii used in NACCESS:
-        http://www.ncbi.nlm.nih.gov/pubmed/994183
-    """
-
-    freesasa, param_f= FREESASA_BIN, FREESASA_PAR
-    if not os.path.isfile(freesasa):
-        raise IOError('[!] freesasa binary not found at `{0}`'.format(freesasa))
-    if not os.path.isfile(param_f):
-        raise IOError('[!] Atomic radii file not found at `{0}`'.format(param_f))
-
-    # Rewrite PDB using Biopython to have a proper format
-    # freesasa is very picky with line width (80 characters or fails!)
-    # Select chains if necessary
-    class ChainSelector(Select):
-        def accept_chain(self, chain):
-            if pdb_selection and chain.id in pdb_selection:
-                return 1
-            elif not pdb_selection:
-                return 1
-            else:
-                return 0
-
-    _pdbf = tempfile.NamedTemporaryFile()
-    io.set_structure(structure)
-    io.save(_pdbf.name, ChainSelector())
-
-    # Run freesasa
-    # Save atomic asa output to another temp file
-    _outf = tempfile.NamedTemporaryFile()
-    cmd = '{0} -B {1} -L -d 0.05 -c {2} {3}'.format(freesasa, _outf.name, param_f, _pdbf.name)
-    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    stdout, stderr = p.communicate()
-
-    if p.returncode:
-        print('[!] freesasa did not run successfully', file=sys.stderr)
-        raise Exception(stderr)
-
-    # Rewind & Parse results file
-    # Save
-    _outf.seek(0)
-    asa, rsa = parse_freesasa_output(_outf)
-
-    _pdbf.close()
-    _outf.close()
-
-    return asa, rsa
+from lib.freesasa import execute_freesasa
+from lib.models import NIS
+from lib.utils import _check_path
+from lib.parsers import parse_structure
+from lib import aa_properties
 
 def analyse_nis(sasa_dict, acc_threshold=0.05, selection=None):
     """
@@ -207,25 +63,6 @@ def calculate_interface_atoms(cmplx_asa, free_asa, sasa_diff_threshold=1):
             n_int_atoms += 1
     return n_int_atoms
 
-def predict_affinity(p_nis_c, p_nis_p, n_int_atoms):
-    """
-    Calculates the predicted binding affinity value
-    based on the NIS model.
-    """
-
-    return 0.0856851248873*p_nis_p + -0.0685254498746*p_nis_c + 0.0261591389985*n_int_atoms \
-        + 3.0124939659498
-
-def _check_path(path):
-    """
-    Checks if a file is readable.
-    """
-
-    full_path = os.path.abspath(path)
-    if not os.path.isfile(full_path):
-        raise IOError('Could not read file: {0}'.format(path))
-    return full_path
-
 if __name__ == "__main__":
 
     try:
@@ -236,9 +73,8 @@ if __name__ == "__main__":
         raise ImportError(e)
 
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=RawTextHelpFormatter)
-    ap.add_argument('pdbf', help='Structure to analyse in PDB format')
-    ap.add_argument('--distance-cutoff', default=5.5, help='Distance cutoff to calculate ICs')
-    ap.add_argument('--acc-threshold', default=0.05, help='Accessibility threshold for BSA analysis')
+    ap.add_argument('structf', help='Structure to analyse in PDB or mmCIF format')
+    ap.add_argument('--acc-threshold', type=float, default=0.05, help='Accessibility threshold for BSA analysis')
     ap.add_argument('-q', '--quiet', action='store_true', help='Outputs only the predicted affinity value')
 
     _co_help = """
@@ -266,12 +102,9 @@ if __name__ == "__main__":
         _stdout = sys.stdout
         sys.stdout = open(os.devnull, 'w')
 
-    P = PDBParser(QUIET=1)
-    io = PDBIO()
-
     # Parse structure
-    pdb_path = _check_path(cmd.pdbf)
-    structure, n_chains, n_res = parse_structure(pdb_path)
+    struct_path = _check_path(cmd.structf)
+    structure, n_chains, n_res = parse_structure(struct_path)
     print('[+] Parsed PDB file {0} ({1} chains, {2} residues)'.format(structure.id, n_chains, n_res))
 
     # Make groups from user option or PDB chains
@@ -288,19 +121,19 @@ if __name__ == "__main__":
         group_list = [c.id for c in structure.get_chains()]
 
     # Complex SASA
-    cmplx_asa, cmplx_rsa = execute_freesasa(structure, pdb_selection=group_list)
+    cmplx_asa, cmplx_rsa = execute_freesasa(structure, selection=group_list)
     _, nis_c, nis_p = analyse_nis(cmplx_rsa, acc_threshold=cmd.acc_threshold, selection=group_list)
 
     # Interface atoms
     free_asa = {}
     for group in group_list:
-        group_asa, _ = execute_freesasa(structure, pdb_selection=group)
+        group_asa, _ = execute_freesasa(structure, selection=group)
         free_asa.update(group_asa)
 
     interface_atoms = calculate_interface_atoms(cmplx_asa, free_asa)
 
     # Affinity Calculation
-    ba_val = predict_affinity(nis_c, nis_p, interface_atoms)
+    ba_val = NIS(nis_c, nis_p, interface_atoms)
     print('[+] Percentage of polar NIS residues: {0:3.2f}'.format(nis_p))
     print('[+] Percentage of charged NIS residues: {0:3.2f}'.format(nis_c))
     print('[+] No. of (buried) interface atoms: {0}'.format(interface_atoms))
@@ -308,4 +141,4 @@ if __name__ == "__main__":
 
     if cmd.quiet:
         sys.stdout = _stdout
-        print('{0}\t{1:8.3f}'.format(pdb_path, ba_val))
+        print('{0}\t{1:8.3f}'.format(struct_path, ba_val))
