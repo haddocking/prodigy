@@ -105,28 +105,28 @@ if __name__ == "__main__":
     # Parse structure
     struct_path = _check_path(cmd.structf)
     structure, n_chains, n_res = parse_structure(struct_path)
-    print('[+] Parsed PDB file {0} ({1} chains, {2} residues)'.format(structure.id, n_chains, n_res))
+    print('[+] Parsed structure file {0} ({1} chains, {2} residues)'.format(structure.id, n_chains, n_res))
 
     # Make groups from user option or PDB chains
     if cmd.selection:
-        group_list = []
-        for group in cmd.selection:
+        selection_dict = {}
+        for igroup, group in enumerate(cmd.selection):
             chains = group.split(',')
-            for previous in group_list:
-                common = chains & previous
-                if common:
-                    raise ValueError('Selections must be disjoint: {0} is repeated'.format(common))
-            group_list.append(chains)
+            for chain in chains:
+                if chain in selection_dict:
+                    errmsg = 'Selections must be disjoint sets: {0} is repeated'.format(chain)
+                    raise ValueError(errmsg)
+                selection_dict[chain] = igroup
     else:
-        group_list = [c.id for c in structure.get_chains()]
+        selection_dict = dict([(c.id, nc) for nc, c in enumerate(structure.get_chains())])
 
     # Complex SASA
-    cmplx_asa, cmplx_rsa = execute_freesasa(structure, selection=group_list)
-    _, nis_c, nis_p = analyse_nis(cmplx_rsa, acc_threshold=cmd.acc_threshold, selection=group_list)
+    cmplx_asa, cmplx_rsa = execute_freesasa(structure, selection=selection_dict)
+    _, nis_c, nis_p = analyse_nis(cmplx_rsa, acc_threshold=cmd.acc_threshold, selection=selection_dict)
 
     # Interface atoms
     free_asa = {}
-    for group in group_list:
+    for group in selection_dict:
         group_asa, _ = execute_freesasa(structure, selection=group)
         free_asa.update(group_asa)
 
