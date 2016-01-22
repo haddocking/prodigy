@@ -48,6 +48,14 @@ def parse_structure(path):
         print('[!] Structure \'{0}\' could not be parsed'.format(sname), file=sys.stderr)
         raise Exception(e)
 
+    # Keep first model only
+    if len(s) > 1:
+        print('[!] Structure contains more than one model. Only the first one will be kept')
+        model_one = s[0].id
+        for m in s.child_list[:]:
+            if m.id != model_one:
+                s.detach_child(m.id)
+
     # Double occupancy check
     for atom in list(s.get_atoms()):
         if atom.is_disordered():
