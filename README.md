@@ -1,40 +1,63 @@
-# binding_affinity
-Repository containing various scripts to predict the binding affinity of protein-protein complexes from structure
+#Binding Affinity Prediction Tools
+Collection of scripts to calculate predictive indexes of binding affinity values
+for protein-protein complexes from atomic structures.
 
-# About
-These scripts allow to calculate properties such as inter-residue distances (ICs) and non-interacting surface properties (NIC) in protein-protein complexes. Such values can be combined with specific weights to predict the binding affinity of the protein complex.
+The scripts implement several binding affinity predictors:
+* [Non-Interacting Surface (NIS) model](http://www.ncbi.nlm.nih.gov/pubmed/24768922)
+* [Contacts-based model](http://www.ncbi.nlm.nih.gov/pubmed/26193119)
 
-#Usage:
-ICs: Copy ICs-parameters.sh, icsdistance.py and filter_property.py in the same directory.
-     Launch the program as:
+#Quick & Dirty Installation
+```bash
+git clone http://github.com/biopython/biopython.git
+cd biopython
+sudo python setup.py install # Alternatively, install locally but fix $PYTHONPATH
 
-         ./ICs-parameters.sh <pdb-file>
-          Example: ./ICs-parameter.sh 2OOB.pdb
+wget http://freesasa.github.io/freesasa-1.0.tar.gz
+tar -xzvf freesasa-1.0.tar.gz
+cd freesasa-1.0
+./configure && make && make install
 
-NIS: Launch the program as:
+git clone http://github.com/haddocking/binding_affinity
 
-     ./parameter_0.5.sh <pdb-file>
+# Edit the config.py to setup the paths to the freesasa binary and radii files
 
-Please note that the complex has to contain only TWO interacting chains, labelled as A and B.
+# Have fun!
+```
 
-# Requirement
-ICs_parameters.sh requires python 2.7 version.
+#Usage
+* __Non-Interacting Surface (NIS) model__  
+```bash
+python predict_NIS.py <pdb file>
+```
 
-NISparameters_0.5.sh requires naccess to be installed. See:[www.bioinf.manchester.ac.uk/naccess](www.bioinf.manchester.ac.uk/naccess).
+* __Contacts-based model__  
+```bash
+python predict_IC.py <pdb file>
+```
 
-=======
+#Installation & Dependencies
+The scripts rely on [Biopython](www.biopython.org) to validate the PDB structures and calculate
+interatomic distances. [freesasa](https://github.com/mittinatten/freesasa), with the parameter
+set used in NACCESS ([Chothia, 1976](http://www.ncbi.nlm.nih.gov/pubmed/994183)), is also
+required for calculating the buried surface area.
 
-# Licensing
+**DISCLAIMER**: given the different software to calculate solvent accessiblity, predicted
+values might differ (very slightly) from those published in the reference implementations.
+The correlation of the actual atomic accessibilities is over 0.99, so we expect these
+differences to be very minor.
 
-- If ICs calcualtion scripts package was useful to your research, please cite us
+To install and use the scripts, just clone the git repository or download the tarball zip
+archive. Make sure `freesasa` and Biopython are accessible to the Python scripts
+through the appropriate environment variables ($PYTHONPATH).
 
-**Anna Vangone and Alexandre M.J.J. Bonvin**: Contacts-based prediction of binding affinity in protein-protein complexes. *eLife* **4**, e07454 (2015).
+#License
+These utilities are open-source and licensed under the Apache License 2.0. For more information
+read the LICENSE file.
 
+#Citing us
+If any of the predictive models or scripts are useful to you, consider citing them in your
+publications:
 
+**Anna Vangone and Alexandre M.J.J. Bonvin**: Contacts-based prediction of binding affinity in protein-protein complexes. Revision in eLife (2015) ([link](http://www.ncbi.nlm.nih.gov/pubmed/26193119))
 
-- If NIS calculation script was useful to your research, please cite us
-
-**Panagiotis L. Kastritis , João P.G.L.M. Rodrigues, Gert E. Folkers, Rolf Boelens, Alexandre M.J.J. Bonvin**: Proteins Feel More Than They See: Fine-Tuning of Binding Affinity by Properties of the Non-Interacting Surface. *Journal of Molecular Biology*, 14, 2632–2652 (2014). 
-
-Apache Licence 2.0
-
+**Panagiotis L. Kastritis , João P.G.L.M. Rodrigues, Gert E. Folkers, Rolf Boelens, Alexandre M.J.J. Bonvin**: Proteins Feel More Than They See: Fine-Tuning of Binding Affinity by Properties of the Non-Interacting Surface. *Journal of Molecular Biology*, 14, 2632–2652 (2014). ([link](http://www.ncbi.nlm.nih.gov/pubmed/24768922))

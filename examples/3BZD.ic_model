@@ -1,0 +1,13 @@
+[+] Reading structure file: /Users/joao/software/binding_affinity/examples/3BZD.pdb
+[+] Parsed structure file 3BZD (2 chains, 343 residues)
+[+] No. of intermolecular contacts: 51
+[+] No. of charged-charged contacts: 4
+[+] No. of charged-polar contacts: 7
+[+] No. of charged-apolar contacts: 6
+[+] No. of polar-polar contacts: 7
+[+] No. of apolar-polar contacts: 15
+[+] No. of apolar-apolar contacts: 12
+[+] Percentage of apolar NIS residues: 29.48
+[+] Percentage of charged NIS residues: 29.48
+[++] Predicted binding affinity (kcal.mol-1):   -9.373
+[++] Predicted dissociation constant (M): 1.333e-07
