@@ -17,8 +17,7 @@ tar -xzvf freesasa-1.0.tar.gz
 cd freesasa-1.0
 ./configure && make && make install
 
-git clone http://github.com/JoaoRodrigues/binding_affinity
-git checkout refactored
+git clone http://github.com/haddocking/binding_affinity
 
 # Edit the config.py to setup the paths to the freesasa binary and radii files
 
