@@ -1,5 +1,5 @@
 [+] Reading structure file: /Users/joao/software/binding_affinity/examples/3BZD.pdb
-[+] Parsed PDB file 3BZD (2 chains, 343 residues)
+[+] Parsed structure file 3BZD (2 chains, 343 residues)
 [+] Percentage of polar NIS residues: 41.04
 [+] Percentage of charged NIS residues: 29.48
 [+] No. of (buried) interface atoms: 130
