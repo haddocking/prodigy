@@ -1,9 +1,8 @@
-#Binding Affinity Prediction Tools
-Collection of scripts to calculate predictive indexes of binding affinity values
+#PRODIGY / Binding Affinity Prediction 
+Collection of scripts to predict binding affinity values
 for protein-protein complexes from atomic structures.
 
-The scripts implement several binding affinity predictors:
-* [Non-Interacting Surface (NIS) model](http://www.ncbi.nlm.nih.gov/pubmed/24768922)
+Details of the binding affinity predictor implemented in PRODIGY can be found here:
 * [Contacts-based model](http://www.ncbi.nlm.nih.gov/pubmed/26193119)
 
 #Quick & Dirty Installation
@@ -25,10 +24,6 @@ git clone http://github.com/haddocking/binding_affinity
 ```
 
 #Usage
-* __Non-Interacting Surface (NIS) model__  
-```bash
-python predict_NIS.py <pdb file>
-```
 
 * __Contacts-based model__  
 ```bash
@@ -55,9 +50,11 @@ These utilities are open-source and licensed under the Apache License 2.0. For m
 read the LICENSE file.
 
 #Citing us
-If any of the predictive models or scripts are useful to you, consider citing them in your
+If our predictive model or any scripts are useful to you, consider citing them in your
 publications:
 
-**Anna Vangone and Alexandre M.J.J. Bonvin**: Contacts-based prediction of binding affinity in protein-protein complexes. Revision in eLife (2015) ([link](http://www.ncbi.nlm.nih.gov/pubmed/26193119))
+**Xue L, Rodrigues J, Kastritis P, Bonvin A.M.J.J, Vangone A.**: PRODIGY: a web server for predicting the binding affinity of protein-protein complexes. *Submitted*.
+
+**Anna Vangone and Alexandre M.J.J. Bonvin**: Contacts-based prediction of binding affinity in protein-protein complexes. *eLife*, e07454 (2015) ([link](http://www.ncbi.nlm.nih.gov/pubmed/26193119))
 
 **Panagiotis L. Kastritis , João P.G.L.M. Rodrigues, Gert E. Folkers, Rolf Boelens, Alexandre M.J.J. Bonvin**: Proteins Feel More Than They See: Fine-Tuning of Binding Affinity by Properties of the Non-Interacting Surface. *Journal of Molecular Biology*, 14, 2632–2652 (2014). ([link](http://www.ncbi.nlm.nih.gov/pubmed/24768922))
