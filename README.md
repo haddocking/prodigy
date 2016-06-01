@@ -28,12 +28,11 @@ git clone http://github.com/haddocking/binding_affinity
 
 #Usage
 
-* __Contacts-based model__  
 ```bash
-python predict_IC.py <pdb file> --selection <chain1><chain2>
+python predict_IC.py <pdb file> [--selection <chain1><chain2>]
 ```
 
-Type --help to get a list of all the possible option of the script.
+Type --help to get a list of all the possible options of the script.
 
 #Installation & Dependencies
 The scripts rely on [Biopython](www.biopython.org) to validate the PDB structures and calculate
