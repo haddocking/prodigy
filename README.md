@@ -57,7 +57,7 @@ read the LICENSE file.
 If our predictive model or any scripts are useful to you, consider citing them in your
 publications:
 
-**Xue L, Rodrigues J, Kastritis P, Bonvin A.M.J.J, Vangone A.**: PRODIGY: a web server for predicting the binding affinity of protein-protein complexes. *Submitted*.
+**Xue L, Rodrigues J, Kastritis P, Bonvin A.M.J.J, Vangone A.**: PRODIGY: a web server for predicting the binding affinity of protein-protein complexes. *Bioinformatics* (2016) ([link](http://bioinformatics.oxfordjournals.org/content/early/2016/08/27/bioinformatics.btw514))
 
 **Anna Vangone and Alexandre M.J.J. Bonvin**: Contacts-based prediction of binding affinity in protein-protein complexes. *eLife*, e07454 (2015) ([link](http://www.ncbi.nlm.nih.gov/pubmed/26193119))
 
