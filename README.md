@@ -62,3 +62,6 @@ publications:
 **Anna Vangone and Alexandre M.J.J. Bonvin**: Contacts-based prediction of binding affinity in protein-protein complexes. *eLife*, e07454 (2015) ([link](http://www.ncbi.nlm.nih.gov/pubmed/26193119))
 
 **Panagiotis L. Kastritis , João P.G.L.M. Rodrigues, Gert E. Folkers, Rolf Boelens, Alexandre M.J.J. Bonvin**: Proteins Feel More Than They See: Fine-Tuning of Binding Affinity by Properties of the Non-Interacting Surface. *Journal of Molecular Biology*, 14, 2632–2652 (2014). ([link](http://www.ncbi.nlm.nih.gov/pubmed/24768922))
+
+#Contact
+For questions about the usege of PRODIGY, please contact the team at: prodigy.bonvinlab@gmail.com
