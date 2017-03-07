@@ -14,10 +14,10 @@ git clone http://github.com/biopython/biopython.git
 cd biopython
 sudo python setup.py install # Alternatively, install locally but fix $PYTHONPATH
 
-wget http://freesasa.github.io/freesasa-1.0.tar.gz
-tar -xzvf freesasa-1.0.tar.gz
-cd freesasa-1.0
-./configure && make && make install
+wget http://freesasa.github.io/freesasa-2.0.tar.gz
+tar -xzvf freesasa-2.0.tar.gz
+cd freesasa-2.0
+./configure --disable-xml --disable-json && make && make install
 
 git clone http://github.com/haddocking/binding_affinity
 

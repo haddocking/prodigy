@@ -26,6 +26,23 @@ except ImportError as e:
 from config import FREESASA_BIN, FREESASA_PAR
 from lib.aa_properties import rel_asa
 
+
+def _check_freesasa_version(executable_path):
+    """Returns a float with the version of the software"""
+    p = subprocess.Popen('{0} --version'.format(executable_path), shell=True,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE)
+
+    stdout, stderr = p.communicate()
+    if p.returncode:
+        print('[!] freesasa did not run successfully', file=sys.stderr)
+        raise Exception(stderr)
+
+    # Parse version string
+    version = stdout.splitlines()[0].split()[-1]
+    return version
+
+
 def execute_freesasa(structure, selection=None):
     """
     Runs the freesasa executable on a PDB file.
@@ -64,7 +81,15 @@ def execute_freesasa(structure, selection=None):
     # Run freesasa
     # Save atomic asa output to another temp file
     _outf = tempfile.NamedTemporaryFile()
-    cmd = '{0} --B-value-file={1} -c {2} {3}'.format(freesasa, _outf.name, param_f, _pdbf.name)
+
+    fs_version = _check_freesasa_version(freesasa)
+    if fs_version == '1.1':
+        cmd = '{0} --B-value-file={1} -c {2} {3}'.format(freesasa, _outf.name,
+                                                         param_f, _pdbf.name)
+    elif fs_version == '2.0':
+        cmd = '{0} -o {1} --format pdb -c {2} {3}'.format(freesasa, _outf.name,
+                                                          param_f, _pdbf.name)
+
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
 
