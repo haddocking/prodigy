@@ -18,8 +18,8 @@ from __future__ import print_function, division
 
 __author__ = ["Anna Vangone", "Joao Rodrigues", "Joerg Schaarschmidt"]
 
-import os
 import sys
+import logging
 
 try:
     from Bio.PDB import NeighborSearch
@@ -190,7 +190,6 @@ class Prodigy():
             handle.close()
 
 if __name__ == "__main__":
-
     try:
         import argparse
         from argparse import RawTextHelpFormatter
@@ -227,12 +226,16 @@ if __name__ == "__main__":
 
     cmd = ap.parse_args()
 
+    # setup logging
+    log_level = logging.ERROR if cmd.quiet else logging.INFO
+    logging.basicConfig(level=log_level, stream=sys.stdout, format="%(message)s")
+    logger = logging.getLogger('Prodigy')
+
     struct_path = _check_path(cmd.structf)
 
     # Parse structure
     structure, n_chains, n_res = parse_structure(struct_path)
-    if not cmd.quiet:
-        print('[+] Parsed structure file {0} ({1} chains, {2} residues)'.format(structure.id, n_chains, n_res))
+    logger.info('[+] Parsed structure file {0} ({1} chains, {2} residues)'.format(structure.id, n_chains, n_res))
     prodigy = Prodigy(structure,cmd.selection, cmd.temperature)
     prodigy.predict(distance_cutoff=cmd.distance_cutoff, acc_threshold= cmd.acc_threshold)
     prodigy.print_prediction()

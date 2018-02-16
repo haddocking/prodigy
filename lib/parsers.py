@@ -13,6 +13,7 @@ from __future__ import print_function, division
 
 import os
 import sys
+import logging
 
 try:
     from Bio.PDB import PDBParser, MMCIFParser
@@ -22,11 +23,13 @@ except ImportError as e:
     raise ImportError(e)
 
 
-
 def validate_structure(s, selection=None, prodigy_lig=False):
+    # setup logging
+    logger = logging.getLogger('Prodigy')
+
     # Keep first model only
     if len(s) > 1:
-        print('[!] Structure contains more than one model. Only the first one will be kept')
+        logger.warning('[!] Structure contains more than one model. Only the first one will be kept')
         model_one = s[0].id
         for m in s.child_list[:]:
             if m.id != model_one:
@@ -72,7 +75,7 @@ def validate_structure(s, selection=None, prodigy_lig=False):
         for i_pp, pp in enumerate(peptides):
             message += '\t{1.parent.id} {1.resname}{1.id[1]} < Fragment {0} > ' \
                        '{2.parent.id} {2.resname}{2.id[1]}\n'.format(i_pp, pp[0],pp[-1])
-        print(message)
+        logger.warning(message)
         # raise Exception(message)
 
     if selection:
@@ -99,8 +102,9 @@ def parse_structure(path):
     Verifies the integrity of the structure (gaps) and its
     suitability for the calculation (is it a complex?).
     """
-
-    print('[+] Reading structure file: {0}'.format(path))
+    # setup logging
+    logger = logging.getLogger('Prodigy')
+    logger.info('[+] Reading structure file: {0}'.format(path))
     fname = os.path.basename(path)
     sname = '.'.join(fname.split('.')[:-1])
     s_ext = fname.split('.')[-1]
@@ -117,7 +121,7 @@ def parse_structure(path):
     try:
         s = sparser.get_structure(sname, path)
     except Exception as e:
-        print('[!] Structure \'{0}\' could not be parsed'.format(sname), file=sys.stderr)
+        logger.error('[!] Structure \'{0}\' could not be parsed'.format(sname), file=sys.stderr)
         raise Exception(e)
 
     return (validate_structure(s),
