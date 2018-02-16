@@ -22,7 +22,7 @@ cd freesasa-2.0.2
 git clone http://github.com/haddocking/binding_affinity
 
 # Edit the config.py to setup the paths to the freesasa binary and radii files
-# or set the respective environment variables (FREESASA_BIN and FREESASA_PAR)
+# or set the respective environment variables (FREESASA_BIN and FREESASA_PAR - these will have precedence)
 
 # Have fun!
 ```
