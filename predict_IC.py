@@ -141,7 +141,8 @@ class Prodigy():
 
     def as_dict(self):
         return {
-            'structure':     self.structure.id,
+            'structure':    self.structure.id,
+            'selection':    self.selection,
             'temp':         self.temp,
             'ICs':          len(self.ic_network),
             'bins':         self.bins,
@@ -149,8 +150,6 @@ class Prodigy():
             'nis_c':        self.nis_c,
             'ba_val':       self.ba_val,
             'kd_val':       self.kd_val,
-            'interactor1':  self.interactor1,
-            'interactor2':  self.interactor2,
         }
 
     def print_prediction(self, outfile='', quiet=False):
