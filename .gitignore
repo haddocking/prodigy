@@ -8,5 +8,9 @@ __pycache__/
 .AppleDouble
 .LSOverride
 
+# PyCharm files
+.idea/
+
 # Thumbnails
 ._*
+
