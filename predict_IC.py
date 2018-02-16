@@ -96,6 +96,100 @@ def analyse_nis(sasa_dict, acc_threshold=0.05, selection=None):
     # print('[+] No. of buried interface residues: {0}'.format(sum(count)))
     return percentages
 
+class Prodigy():
+    # init parameters
+    def __init__(self, struct_obj, selection=None, temp=25.0):
+        self.temp = float(temp)
+        if selection is None:
+            self.selection = [chain.id for chain in structure.get_chains()]
+        else:
+            self.selection = selection
+        self.structure = struct_obj
+        self.ic_network = {}
+        self.bins =  {}
+        self.nis_a = 0
+        self.nis_c = 0
+        self.ba_val = 0
+        self.kd_val = 0
+
+    def predict(self, temp=None, distance_cutoff=5.5, acc_threshold=0.05):
+        if temp is not None:
+            self.temp = temp
+        # Make selection dict from user option or PDB chains
+        selection_dict = {}
+        for igroup, group in enumerate(self.selection):
+            chains = group.split(',')
+            for chain in chains:
+                if chain in selection_dict:
+                    errmsg = 'Selections must be disjoint sets: {0} is repeated'.format(chain)
+                    raise ValueError(errmsg)
+                selection_dict[chain] = igroup
+
+        # Contacts
+        self.ic_network = calculate_ic(self.structure, d_cutoff=distance_cutoff, selection=selection_dict)
+
+
+        self.bins = analyse_contacts(self.ic_network)
+
+        # SASA
+        _, cmplx_sasa = execute_freesasa(self.structure, selection=selection_dict)
+        self.nis_a, self.nis_c, _ = analyse_nis(cmplx_sasa, acc_threshold=acc_threshold, selection=selection_dict)
+
+        # Affinity Calculation
+        self.ba_val = IC_NIS(self.bins['CC'], self.bins['AC'], self.bins['PP'], self.bins['AP'], self.nis_a, self.nis_c)
+        self.kd_val = dg_to_kd(self.ba_val,self.temp)
+
+    def as_dict(self):
+        return {
+            'structure':     self.structure.id,
+            'temp':         self.temp,
+            'ICs':          len(self.ic_network),
+            'bins':         self.bins,
+            'nis_a':        self.nis_a,
+            'nis_c':        self.nis_c,
+            'ba_val':       self.ba_val,
+            'kd_val':       self.kd_val,
+            'interactor1':  self.interactor1,
+            'interactor2':  self.interactor2,
+        }
+
+    def print_prediction(self, outfile='', quiet=False):
+        if outfile:
+            handle = open(outfile, 'w')
+        else:
+            handle = sys.stdout
+
+        if quiet:
+            handle.write('{0}\t{1:8.3f}\n'.format(self.structure.id, self.ba_val))
+        else:
+            handle.write( '[+] No. of intermolecular contacts: {0}\n'.format(len(self.ic_network)))
+            handle.write( '[+] No. of charged-charged contacts: {0}\n'.format(self.bins['CC']))
+            handle.write( '[+] No. of charged-polar contacts: {0}\n'.format(self.bins['CP']))
+            handle.write( '[+] No. of charged-apolar contacts: {0}\n'.format(self.bins['AC']))
+            handle.write( '[+] No. of polar-polar contacts: {0}\n'.format(self.bins['PP']))
+            handle.write( '[+] No. of apolar-polar contacts: {0}\n'.format(self.bins['AP']))
+            handle.write( '[+] No. of apolar-apolar contacts: {0}\n'.format(self.bins['AA']))
+            handle.write( '[+] Percentage of apolar NIS residues: {0:3.2f}\n'.format(self.nis_a))
+            handle.write( '[+] Percentage of charged NIS residues: {0:3.2f}\n'.format(self.nis_c))
+            handle.write( '[++] Predicted binding affinity (kcal.mol-1): {0:8.1f}\n'.format(self.ba_val))
+            handle.write( '[++] Predicted dissociation constant (M) at {:.1f}˚C: {:8.1e}\n'.format(self.temp, self.kd_val))
+
+        if handle is not sys.stdout:
+            handle.close()
+
+    def print_contacts(self, outfile=''):
+        if outfile:
+            handle = open(outfile, 'w')
+        else:
+            handle = sys.stdout
+
+        for pair in self.ic_network:
+            _fmt_str = "{0.parent.id}\t{0.resname}\t{0.id[1]}\t{1.parent.id}\t{1.resname}\t{1.id[1]}\n".format(*pair)
+            handle.write(_fmt_str)
+
+        if handle is not sys.stdout:
+            handle.close()
+
 if __name__ == "__main__":
 
     try:
@@ -134,101 +228,18 @@ if __name__ == "__main__":
 
     cmd = ap.parse_args()
 
-    if cmd.quiet:
-        _stdout = sys.stdout
-        sys.stdout = open(os.devnull, 'w')
-
     struct_path = _check_path(cmd.structf)
 
     # Parse structure
     structure, n_chains, n_res = parse_structure(struct_path)
-    print('[+] Parsed structure file {0} ({1} chains, {2} residues)'.format(structure.id, n_chains, n_res))
+    if not cmd.quiet:
+        print('[+] Parsed structure file {0} ({1} chains, {2} residues)'.format(structure.id, n_chains, n_res))
+    prodigy = Prodigy(structure,cmd.selection, cmd.temperature)
+    prodigy.predict(distance_cutoff=cmd.distance_cutoff, acc_threshold= cmd.acc_threshold)
+    prodigy.print_prediction()
 
-class Prodigy():
-    # init parameters
-    def __init__(self, struct_obj, interactor1, interactor2, temp=25.0):
-        self.temp = float(temp)
-        self.interactor1=interactor1
-        self.interactor2=interactor2
-        self.structure = struct_obj
-        self.ic_network = {}
-        self.bins =  {}
-        self.nis_a = 0
-        self.nis_c = 0
-        self.ba_val = 0
-        self.kd_val = 0
+    # Print out interaction network
+    if cmd.contact_list:
+        fname = struct_path[:-4] + '.ic'
+        prodigy.print_prediction(fname, quiet=cmd.quiet)
 
-    def predict(self, temp=None, distance_cutoff=5.5, acc_threshold=0.05):
-        if temp is not None:
-            self.temp = temp
-        # Make selection dict from user option or PDB chains
-        selection_dict = {}
-        for igroup, group in enumerate([self.interactor1, self.interactor2]):
-            chains = group.split(',')
-            for chain in chains:
-                if chain in selection_dict:
-                    errmsg = 'Selections must be disjoint sets: {0} is repeated'.format(chain)
-                    raise ValueError(errmsg)
-                selection_dict[chain] = igroup
-
-        # Contacts
-        self.ic_network = calculate_ic(self.structure, d_cutoff=distance_cutoff, selection=selection_dict)
-
-
-        self.bins = analyse_contacts(self.ic_network)
-
-        # SASA
-        _, cmplx_sasa = execute_freesasa(self.structure, selection=selection_dict)
-        self.nis_a, self.nis_c, _ = analyse_nis(cmplx_sasa, acc_threshold=acc_threshold, selection=selection_dict)
-
-        # Affinity Calculation
-        self.ba_val = IC_NIS(self.bins['CC'], self.bins['AC'], self.bins['PP'], self.bins['AP'], self.nis_a, self.nis_c)
-        self.kd_val = dg_to_kd(self.ba_val,self.temp)
-
-    def as_dict(self):
-        return {
-            'structure':     self.structure.id,
-            'temp':         self.temp,
-            'ICs':          len(self.ic_network),
-            'bins':         self.bins,
-            'nis_a':        self.nis_a,
-            'nis_c':        self.nis_c,
-            'ba_val':       self.ba_val,
-            'kd_val':       self.kd_val,
-            'interactor1':  self.interactor1,
-            'interactor2':  self.interactor2,
-        }
-
-    def print_prediction(self, outfile=''):
-        if outfile:
-            handle = open(outfile, 'w')
-        else:
-            handle = sys.stdout
-
-        handle.write( '[+] No. of intermolecular contacts: {0}\n'.format(len(self.ic_network)))
-        handle.write( '[+] No. of charged-charged contacts: {0}\n'.format(self.bins['CC']))
-        handle.write( '[+] No. of charged-polar contacts: {0}\n'.format(self.bins['CP']))
-        handle.write( '[+] No. of charged-apolar contacts: {0}\n'.format(self.bins['AC']))
-        handle.write( '[+] No. of polar-polar contacts: {0}\n'.format(self.bins['PP']))
-        handle.write( '[+] No. of apolar-polar contacts: {0}\n'.format(self.bins['AP']))
-        handle.write( '[+] No. of apolar-apolar contacts: {0}\n'.format(self.bins['AA']))
-        handle.write( '[+] Percentage of apolar NIS residues: {0:3.2f}\n'.format(self.nis_a))
-        handle.write( '[+] Percentage of charged NIS residues: {0:3.2f}\n'.format(self.nis_c))
-        handle.write( '[++] Predicted binding affinity (kcal.mol-1): {0:8.1f}\n'.format(self.ba_val))
-        handle.write( '[++] Predicted dissociation constant (M) at {:.1f}˚C: {:8.1e}\n'.format(self.temp, self.kd_val))
-
-        if handle is not sys.stdout:
-            handle.close()
-
-    def print_contacts(self, outfile=''):
-        if outfile:
-            handle = open(outfile, 'w')
-        else:
-            handle = sys.stdout
-
-        for pair in self.ic_network:
-            _fmt_str = "{0.parent.id}\t{0.resname}\t{0.id[1]}\t{1.parent.id}\t{1.resname}\t{1.id[1]}\n".format(*pair)
-            handle.write(_fmt_str)
-
-        if handle is not sys.stdout:
-            handle.close()

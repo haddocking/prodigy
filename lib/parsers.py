@@ -120,6 +120,6 @@ def parse_structure(path):
         print('[!] Structure \'{0}\' could not be parsed'.format(sname), file=sys.stderr)
         raise Exception(e)
 
-    return (validate_structure(),
+    return (validate_structure(s),
             len(set([c.id for c in s.get_chains()])),
             len(list(s.get_residues())))
