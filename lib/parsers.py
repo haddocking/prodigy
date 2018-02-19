@@ -35,6 +35,25 @@ def validate_structure(s, selection=None, prodigy_lig=False):
             if m.id != model_one:
                 s.detach_child(m.id)
 
+    # process selected chains
+    chains = list(s.get_chains())
+    chain_ids = set([c.id for c in chains])
+
+    if selection:
+        sel_chains=[]
+        # Match selected chain with structure
+        for sel in selection:
+            for c in sel.split(','):
+                sel_chains.append(c)
+                if c not in chain_ids:
+                    raise ValueError('Selected chain not present in provided structure: {0}'.format(c))
+
+        # Remove unselected chains
+        _ignore = lambda c: c.id not in sel_chains
+        for c in chains:
+            if _ignore(c):
+                c.parent.detach_child(c.id)
+
     # Double occupancy check
     for atom in list(s.get_atoms()):
         if atom.is_disordered():
@@ -44,6 +63,7 @@ def validate_structure(s, selection=None, prodigy_lig=False):
             sel_at.disordered_flag = 0
             residue.detach_child(atom.id)
             residue.add(sel_at)
+
     if not prodigy_lig:
         # Remove HETATMs and solvent
         res_list = list(s.get_residues())
@@ -67,8 +87,6 @@ def validate_structure(s, selection=None, prodigy_lig=False):
     pep_builder = PPBuilder()
     peptides = pep_builder.build_peptides(s)
     n_peptides = len(peptides)
-    chains = list(s.get_chains())
-    chain_ids = set([c.id for c in chains])
 
     if n_peptides != len(chain_ids):
         message= '[!] Structure contains gaps:\n'
@@ -77,21 +95,6 @@ def validate_structure(s, selection=None, prodigy_lig=False):
                        '{2.parent.id} {2.resname}{2.id[1]}\n'.format(i_pp, pp[0],pp[-1])
         logger.warning(message)
         # raise Exception(message)
-
-    if selection:
-        sel_chains=[]
-        # Match selected chain with structure
-        for sel in selection:
-            for c in sel.split(','):
-                sel_chains.append(c)
-                if c not in chain_ids:
-                    raise ValueError('Selected chain not present in provided structure: {0}'.format(c))
-
-        # Remove unselected chains
-        _ignore = lambda c: c.id not in sel_chains
-        for c in chains:
-            if _ignore(c):
-                c.parent.detach_child(c.id)
 
     return s
 
