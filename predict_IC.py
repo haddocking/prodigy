@@ -106,7 +106,7 @@ class Prodigy():
             self.selection = selection
         self.structure = struct_obj
         self.ic_network = {}
-        self.bins =  {}
+        self.bins = {}
         self.nis_a = 0
         self.nis_c = 0
         self.ba_val = 0
@@ -140,17 +140,18 @@ class Prodigy():
         self.kd_val = dg_to_kd(self.ba_val,self.temp)
 
     def as_dict(self):
-        return {
+        return_dict =  {
             'structure':    self.structure.id,
             'selection':    self.selection,
             'temp':         self.temp,
             'ICs':          len(self.ic_network),
-            'bins':         self.bins,
             'nis_a':        self.nis_a,
             'nis_c':        self.nis_c,
             'ba_val':       self.ba_val,
             'kd_val':       self.kd_val,
         }
+        return_dict.update(self.bins)
+        return return_dict
 
     def print_prediction(self, outfile='', quiet=False):
         if outfile:
