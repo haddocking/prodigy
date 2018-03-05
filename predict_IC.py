@@ -1,5 +1,5 @@
 # coding: utf-8
-#!/usr/bin/env python
+# !/usr/bin/env python
 #
 # This code is part of the binding affinity prediction tools distribution
 # and governed by its license.  Please see the LICENSE file that should
@@ -18,8 +18,8 @@ from __future__ import print_function, division
 
 __author__ = ["Anna Vangone", "Joao Rodrigues", "Joerg Schaarschmidt"]
 
-import os
 import sys
+import logging
 
 try:
     from Bio.PDB import NeighborSearch
@@ -33,11 +33,12 @@ from lib.utils import _check_path, dg_to_kd
 from lib.parsers import parse_structure
 from lib import aa_properties
 
-def calculate_ic(structure, d_cutoff=5.5, selection=None):
+
+def calculate_ic(struct, d_cutoff=5.5, selection=None):
     """
-    Calculates intermolecular contacts in a parsed structure object.
+    Calculates intermolecular contacts in a parsed struct object.
     """
-    atom_list = list(structure.get_atoms())
+    atom_list = list(struct.get_atoms())
     ns = NeighborSearch(atom_list)
     all_list = ns.search_all(radius=d_cutoff, level='R')
 
@@ -45,7 +46,7 @@ def calculate_ic(structure, d_cutoff=5.5, selection=None):
         _sd = selection
         _chain = lambda x: x.parent.id
         ic_list = [c for c in all_list if (_chain(c[0]) in _sd and _chain(c[1]) in _sd)
-                    and (_sd[_chain(c[0])] != _sd[_chain(c[1])]) ]
+                   and (_sd[_chain(c[0])] != _sd[_chain(c[1])])]
     else:
         ic_list = [c for c in all_list if c[0].parent.id != c[1].parent.id]
 
@@ -53,6 +54,7 @@ def calculate_ic(structure, d_cutoff=5.5, selection=None):
         raise ValueError('No contacts found for selection')
 
     return ic_list
+
 
 def analyse_contacts(contact_list):
     """
@@ -64,7 +66,7 @@ def analyse_contacts(contact_list):
         'AA': 0, 'PP': 0,
         'CC': 0, 'AP': 0,
         'CP': 0, 'AC': 0,
-        }
+    }
 
     _data = aa_properties.aa_character_ic
     for (res_i, res_j) in contact_list:
@@ -74,7 +76,8 @@ def analyse_contacts(contact_list):
 
     return bins
 
-def analyse_nis(sasa_dict, acc_threshold=0.05, selection=None):
+
+def analyse_nis(sasa_dict, acc_threshold=0.05):
     """
     Returns the percentages of apolar, polar, and charged
     residues at the interface, according to an accessibility
@@ -92,11 +95,12 @@ def analyse_nis(sasa_dict, acc_threshold=0.05, selection=None):
             aa_index = _char_to_index(aa_character)
             count[aa_index] += 1
 
-    percentages = map(lambda x: 100*x/sum(count), count)
+    percentages = map(lambda x: 100 * x / sum(count), count)
     # print('[+] No. of buried interface residues: {0}'.format(sum(count)))
     return percentages
 
-class Prodigy():
+
+class Prodigy:
     # init parameters
     def __init__(self, struct_obj, selection=None, temp=25.0):
         self.temp = float(temp)
@@ -106,7 +110,7 @@ class Prodigy():
             self.selection = selection
         self.structure = struct_obj
         self.ic_network = {}
-        self.bins =  {}
+        self.bins = {}
         self.nis_a = 0
         self.nis_c = 0
         self.ba_val = 0
@@ -128,30 +132,29 @@ class Prodigy():
         # Contacts
         self.ic_network = calculate_ic(self.structure, d_cutoff=distance_cutoff, selection=selection_dict)
 
-
         self.bins = analyse_contacts(self.ic_network)
 
         # SASA
         _, cmplx_sasa = execute_freesasa(self.structure, selection=selection_dict)
-        self.nis_a, self.nis_c, _ = analyse_nis(cmplx_sasa, acc_threshold=acc_threshold, selection=selection_dict)
+        self.nis_a, self.nis_c, _ = analyse_nis(cmplx_sasa, acc_threshold=acc_threshold)
 
         # Affinity Calculation
         self.ba_val = IC_NIS(self.bins['CC'], self.bins['AC'], self.bins['PP'], self.bins['AP'], self.nis_a, self.nis_c)
-        self.kd_val = dg_to_kd(self.ba_val,self.temp)
+        self.kd_val = dg_to_kd(self.ba_val, self.temp)
 
     def as_dict(self):
-        return {
-            'structure':     self.structure.id,
-            'temp':         self.temp,
-            'ICs':          len(self.ic_network),
-            'bins':         self.bins,
-            'nis_a':        self.nis_a,
-            'nis_c':        self.nis_c,
-            'ba_val':       self.ba_val,
-            'kd_val':       self.kd_val,
-            'interactor1':  self.interactor1,
-            'interactor2':  self.interactor2,
+        return_dict = {
+            'structure': self.structure.id,
+            'selection': self.selection,
+            'temp': self.temp,
+            'ICs': len(self.ic_network),
+            'nis_a': self.nis_a,
+            'nis_c': self.nis_c,
+            'ba_val': self.ba_val,
+            'kd_val': self.kd_val,
         }
+        return_dict.update(self.bins)
+        return return_dict
 
     def print_prediction(self, outfile='', quiet=False):
         if outfile:
@@ -162,17 +165,18 @@ class Prodigy():
         if quiet:
             handle.write('{0}\t{1:8.3f}\n'.format(self.structure.id, self.ba_val))
         else:
-            handle.write( '[+] No. of intermolecular contacts: {0}\n'.format(len(self.ic_network)))
-            handle.write( '[+] No. of charged-charged contacts: {0}\n'.format(self.bins['CC']))
-            handle.write( '[+] No. of charged-polar contacts: {0}\n'.format(self.bins['CP']))
-            handle.write( '[+] No. of charged-apolar contacts: {0}\n'.format(self.bins['AC']))
-            handle.write( '[+] No. of polar-polar contacts: {0}\n'.format(self.bins['PP']))
-            handle.write( '[+] No. of apolar-polar contacts: {0}\n'.format(self.bins['AP']))
-            handle.write( '[+] No. of apolar-apolar contacts: {0}\n'.format(self.bins['AA']))
-            handle.write( '[+] Percentage of apolar NIS residues: {0:3.2f}\n'.format(self.nis_a))
-            handle.write( '[+] Percentage of charged NIS residues: {0:3.2f}\n'.format(self.nis_c))
-            handle.write( '[++] Predicted binding affinity (kcal.mol-1): {0:8.1f}\n'.format(self.ba_val))
-            handle.write( '[++] Predicted dissociation constant (M) at {:.1f}˚C: {:8.1e}\n'.format(self.temp, self.kd_val))
+            handle.write('[+] No. of intermolecular contacts: {0}\n'.format(len(self.ic_network)))
+            handle.write('[+] No. of charged-charged contacts: {0}\n'.format(self.bins['CC']))
+            handle.write('[+] No. of charged-polar contacts: {0}\n'.format(self.bins['CP']))
+            handle.write('[+] No. of charged-apolar contacts: {0}\n'.format(self.bins['AC']))
+            handle.write('[+] No. of polar-polar contacts: {0}\n'.format(self.bins['PP']))
+            handle.write('[+] No. of apolar-polar contacts: {0}\n'.format(self.bins['AP']))
+            handle.write('[+] No. of apolar-apolar contacts: {0}\n'.format(self.bins['AA']))
+            handle.write('[+] Percentage of apolar NIS residues: {0:3.2f}\n'.format(self.nis_a))
+            handle.write('[+] Percentage of charged NIS residues: {0:3.2f}\n'.format(self.nis_c))
+            handle.write('[++] Predicted binding affinity (kcal.mol-1): {0:8.1f}\n'.format(self.ba_val))
+            handle.write(
+                '[++] Predicted dissociation constant (M) at {:.1f}˚C: {:8.1e}\n'.format(self.temp, self.kd_val))
 
         if handle is not sys.stdout:
             handle.close()
@@ -183,15 +187,52 @@ class Prodigy():
         else:
             handle = sys.stdout
 
-        for pair in self.ic_network:
-            _fmt_str = "{0.parent.id}\t{0.resname}\t{0.id[1]}\t{1.parent.id}\t{1.resname}\t{1.id[1]}\n".format(*pair)
-            handle.write(_fmt_str)
+        for res1, res2 in self.ic_network:
+            _fmt_str = "{0.resname:>5s} {0.id[1]:5} {0.parent.id:>3s} {1.resname:>5s} {1.id[1]:5} {1.parent.id:>3s}\n"
+            if res1.parent.id not in self.selection[0]:
+                res1, res2 = res2, res1
+            handle.write(_fmt_str.format(res1, res2))
 
         if handle is not sys.stdout:
             handle.close()
 
-if __name__ == "__main__":
+    def print_pymol_script(self, outfile=''):
+        # Writing output PYMOL: pml script
+        # initialize array with chains and save chain selection string
+        selection_strings = []
+        chains = {}
+        for s in self.selection:
+            selection_strings.append(s.replace(",", '+'))
+            for c in s.split(","):
+                chains[c] = set()
 
+        # loop over pairs and add interface residues to respective chains
+        for pair in self.ic_network:
+            for r in pair:
+                chains[r.parent.id].add(str(r.id[1]))
+
+        # set output stream
+        handle = open(outfile, 'w') if outfile else sys.stdout
+
+        # write default setup strings
+        handle.writelines(["color silver\n", "as cartoon\n", "bg_color white\n", "center\n",
+                           "color lightblue, chain {}\n".format(selection_strings[0]),
+                           "color lightpink, chain {}\n".format(selection_strings[1])])
+
+        # loop over interfaces construct selection strings and write interface related commands
+        for color, iface in [('blue', 1), ('hotpink', 2)]:
+            p_sel_string = " or ".join(["chain {} and resi {}".format(c, "+".join(chains[c]))
+                                        for c in selection_strings[iface-1].split('+')])
+            handle.write("select iface{},  {}\n".format(iface, p_sel_string))
+            handle.write("color {}, iface{}\n".format(color, iface))
+            handle.write("show sticks, iface{}\n".format(iface))
+
+        # close file handle if applicable
+        if handle is not sys.stdout:
+            handle.close()
+
+
+if __name__ == "__main__":
     try:
         import argparse
         from argparse import RawTextHelpFormatter
@@ -205,6 +246,7 @@ if __name__ == "__main__":
     ap.add_argument('--acc-threshold', type=float, default=0.05, help='Accessibility threshold for BSA analysis')
     ap.add_argument('--temperature', type=float, default=25.0, help='Temperature (C) for Kd prediction')
     ap.add_argument('--contact_list', action='store_true', help='Output a list of contacts')
+    ap.add_argument('--pymol_selection', action='store_true', help='Output a script to highlight the interface (pymol)')
     ap.add_argument('-q', '--quiet', action='store_true', help='Outputs only the predicted affinity value')
 
     _co_help = """
@@ -228,18 +270,26 @@ if __name__ == "__main__":
 
     cmd = ap.parse_args()
 
+    # setup logging
+    log_level = logging.ERROR if cmd.quiet else logging.INFO
+    logging.basicConfig(level=log_level, stream=sys.stdout, format="%(message)s")
+    logger = logging.getLogger('Prodigy')
+
     struct_path = _check_path(cmd.structf)
 
     # Parse structure
     structure, n_chains, n_res = parse_structure(struct_path)
-    if not cmd.quiet:
-        print('[+] Parsed structure file {0} ({1} chains, {2} residues)'.format(structure.id, n_chains, n_res))
-    prodigy = Prodigy(structure,cmd.selection, cmd.temperature)
-    prodigy.predict(distance_cutoff=cmd.distance_cutoff, acc_threshold= cmd.acc_threshold)
-    prodigy.print_prediction()
+    logger.info('[+] Parsed structure file {0} ({1} chains, {2} residues)'.format(structure.id, n_chains, n_res))
+    prodigy = Prodigy(structure, cmd.selection, cmd.temperature)
+    prodigy.predict(distance_cutoff=cmd.distance_cutoff, acc_threshold=cmd.acc_threshold)
+    prodigy.print_prediction(quiet=cmd.quiet)
 
     # Print out interaction network
     if cmd.contact_list:
         fname = struct_path[:-4] + '.ic'
-        prodigy.print_prediction(fname, quiet=cmd.quiet)
+        prodigy.print_contacts(fname)
 
+    # Print out interaction network
+    if cmd.pymol_selection:
+        fname = struct_path[:-4] + '.pml'
+        prodigy.print_pymol_script(fname)

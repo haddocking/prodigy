@@ -14,5 +14,6 @@ Configuration file.
 __author__ = ["Anna Vangone", "Joao Rodrigues"]
 
 # (Absolute) Paths to the freesasa binary and config files
-FREESASA_BIN = "../freesasa/src/freesasa"
-FREESASA_PAR = "../freesasa/share/naccess.config"
+FREESASA_BIN = ""
+FREESASA_PAR = ""
+

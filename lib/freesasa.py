@@ -40,6 +40,15 @@ def execute_freesasa(structure, selection=None):
     io = PDBIO()
 
     freesasa, param_f= FREESASA_BIN, FREESASA_PAR
+    # try to get freesasa paths from environment if not use the ones defined in config file
+    if 'FREESASA_BIN' in os.environ:
+        if os.path.isfile(os.environ['FREESASA_BIN']):
+            freesasa = os.environ['FREESASA_BIN']
+
+    if 'FREESASA_PAR' in os.environ:
+        if os.path.isfile(os.environ['FREESASA_PAR']):
+            param_f = os.environ['FREESASA_PAR']
+
     if not os.path.isfile(freesasa):
         raise IOError('[!] freesasa binary not found at `{0}`'.format(freesasa))
     if not os.path.isfile(param_f):
