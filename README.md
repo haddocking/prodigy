@@ -1,4 +1,4 @@
-#PRODIGY / Binding Affinity Prediction 
+# PRODIGY / Binding Affinity Prediction
 Collection of scripts to predict binding affinity values
 for protein-protein complexes from atomic structures.
 

@@ -23,7 +23,7 @@ except ImportError as e:
     raise ImportError(e)
 
 
-def validate_structure(s, selection=None, prodigy_lig=False):
+def validate_structure(s, selection=None, clean=True):
     # setup logging
     logger = logging.getLogger('Prodigy')
 
@@ -40,7 +40,7 @@ def validate_structure(s, selection=None, prodigy_lig=False):
     chain_ids = set([c.id for c in chains])
 
     if selection:
-        sel_chains=[]
+        sel_chains = []
         # Match selected chain with structure
         for sel in selection:
             for c in sel.split(','):
@@ -49,7 +49,7 @@ def validate_structure(s, selection=None, prodigy_lig=False):
                     raise ValueError('Selected chain not present in provided structure: {0}'.format(c))
 
         # Remove unselected chains
-        _ignore = lambda c: c.id not in sel_chains
+        _ignore = lambda x: x.id not in sel_chains
         for c in chains:
             if _ignore(c):
                 c.parent.detach_child(c.id)
@@ -64,7 +64,7 @@ def validate_structure(s, selection=None, prodigy_lig=False):
             residue.detach_child(atom.id)
             residue.add(sel_at)
 
-    if not prodigy_lig:
+    if clean:
         # Remove HETATMs and solvent
         res_list = list(s.get_residues())
         _ignore = lambda r: r.id[0][0] == 'W' or r.id[0][0] == 'H'
@@ -89,10 +89,10 @@ def validate_structure(s, selection=None, prodigy_lig=False):
     n_peptides = len(peptides)
 
     if n_peptides != len(chain_ids):
-        message= '[!] Structure contains gaps:\n'
+        message = '[!] Structure contains gaps:\n'
         for i_pp, pp in enumerate(peptides):
             message += '\t{1.parent.id} {1.resname}{1.id[1]} < Fragment {0} > ' \
-                       '{2.parent.id} {2.resname}{2.id[1]}\n'.format(i_pp, pp[0],pp[-1])
+                       '{2.parent.id} {2.resname}{2.id[1]}\n'.format(i_pp, pp[0], pp[-1])
         logger.warning(message)
         # raise Exception(message)
 
@@ -112,20 +112,17 @@ def parse_structure(path):
     sname = '.'.join(fname.split('.')[:-1])
     s_ext = fname.split('.')[-1]
 
-    _ext = set(('pdb', 'ent', 'cif'))
+    _ext = {'pdb', 'ent', 'cif'}
     if s_ext not in _ext:
         raise IOError('[!] Structure format \'{0}\' is not supported. Use \'.pdb\' or \'.cif\'.'.format(s_ext))
 
-    if s_ext in set(('pdb', 'ent')):
-        sparser = PDBParser(QUIET=1)
-    elif s_ext == 'cif':
-        sparser = MMCIFParser()
+    sparser = PDBParser(QUIET=1) if s_ext in {'pdb', 'ent'} else MMCIFParser()
 
     try:
         s = sparser.get_structure(sname, path)
-    except Exception as e:
+    except Exception as exeption:
         logger.error('[!] Structure \'{0}\' could not be parsed'.format(sname), file=sys.stderr)
-        raise Exception(e)
+        raise Exception(exeption)
 
     return (validate_structure(s),
             len(set([c.id for c in s.get_chains()])),
