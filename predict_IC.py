@@ -16,6 +16,8 @@ eLife (2015)
 
 from __future__ import print_function, division
 
+__version__ = '2.0'
+
 __author__ = ["Anna Vangone", "Joao Rodrigues", "Joerg Schaarschmidt"]
 
 import sys
@@ -248,7 +250,8 @@ if __name__ == "__main__":
     ap.add_argument('--contact_list', action='store_true', help='Output a list of contacts')
     ap.add_argument('--pymol_selection', action='store_true', help='Output a script to highlight the interface (pymol)')
     ap.add_argument('-q', '--quiet', action='store_true', help='Outputs only the predicted affinity value')
-
+    ap.add_argument('-V', '--version', action='version', version='%(prog)s {}'.format(__version__),
+                    help='Print the version and exit.')
     _co_help = """
     By default, all intermolecular contacts are taken into consideration,
     a molecule being defined as an isolated group of amino acids sharing
