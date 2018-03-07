@@ -1,4 +1,7 @@
 # PRODIGY / Binding Affinity Prediction
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1193244.svg)](https://doi.org/10.5281/zenodo.1193244)
+
 Collection of scripts to predict binding affinity values
 for protein-protein complexes from atomic structures.
 
