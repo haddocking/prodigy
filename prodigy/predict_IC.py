@@ -29,11 +29,11 @@ except ImportError as e:
     print('[!] The binding affinity prediction tools require Biopython', file=sys.stderr)
     raise ImportError(e)
 
-from lib.freesasa import execute_freesasa
-from lib.models import IC_NIS
-from lib.utils import _check_path, dg_to_kd
-from lib.parsers import parse_structure
-from lib import aa_properties
+from .lib.freesasa import execute_freesasa
+from .lib.models import IC_NIS
+from .lib.utils import check_path, dg_to_kd
+from .lib.parsers import parse_structure
+from .lib import aa_properties
 
 
 def calculate_ic(struct, d_cutoff=5.5, selection=None):
@@ -46,7 +46,10 @@ def calculate_ic(struct, d_cutoff=5.5, selection=None):
 
     if selection:
         _sd = selection
-        _chain = lambda x: x.parent.id
+
+        def _chain(x):
+            return x.parent.id
+
         ic_list = [c for c in all_list if (_chain(c[0]) in _sd and _chain(c[1]) in _sd)
                    and (_sd[_chain(c[0])] != _sd[_chain(c[1])])]
     else:
@@ -87,7 +90,10 @@ def analyse_nis(sasa_dict, acc_threshold=0.05):
     """
 
     _data = aa_properties.aa_character_protorp
-    _char_to_index = lambda x: {'A': 0, 'C': 1, 'P': 2}.get(x)
+
+    def _char_to_index(x):
+        return {'A': 0, 'C': 1, 'P': 2}.get(x)
+
     count = [0, 0, 0]
 
     for res, rsa in sasa_dict.iteritems():

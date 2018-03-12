@@ -14,7 +14,8 @@ from __future__ import print_function, division
 import math
 import os
 
-def _check_path(path):
+
+def check_path(path):
     """
     Checks if a file is readable.
     """
@@ -24,9 +25,10 @@ def _check_path(path):
         raise IOError('Could not read file: {0}'.format(path))
     return full_path
 
+
 def dg_to_kd(dg, temperature=25.0):
     """Coversion of DG into the dissociation constant kd """
     
-    temp_in_K = temperature + 273.15
-    RT = 0.0019858775 * temp_in_K
-    return math.exp(dg / RT)
+    temp_in_k = temperature + 273.15
+    rt = 0.0019858775 * temp_in_k
+    return math.exp(dg / rt)

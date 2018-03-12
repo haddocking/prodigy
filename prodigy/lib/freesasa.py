@@ -23,8 +23,9 @@ except ImportError as e:
     print('[!] The binding affinity prediction tools require Biopython', file=sys.stderr)
     raise ImportError(e)
 
-from config import FREESASA_BIN, FREESASA_PAR
-from aa_properties import rel_asa
+
+from .aa_properties import rel_asa
+
 
 def execute_freesasa(structure, selection=None):
     """
@@ -39,15 +40,9 @@ def execute_freesasa(structure, selection=None):
     """
     io = PDBIO()
 
-    freesasa, param_f= FREESASA_BIN, FREESASA_PAR
     # try to get freesasa paths from environment if not use the ones defined in config file
-    if 'FREESASA_BIN' in os.environ:
-        if os.path.isfile(os.environ['FREESASA_BIN']):
-            freesasa = os.environ['FREESASA_BIN']
 
-    if 'FREESASA_PAR' in os.environ:
-        if os.path.isfile(os.environ['FREESASA_PAR']):
-            param_f = os.environ['FREESASA_PAR']
+    freesasa, param_f = [os.environ.get(key) for key in ['FREESASA_BIN', 'FREESASA_PAR']]
 
     if not os.path.isfile(freesasa):
         raise IOError('[!] freesasa binary not found at `{0}`'.format(freesasa))
@@ -92,6 +87,7 @@ def execute_freesasa(structure, selection=None):
 
     return asa, rsa
 
+
 def parse_freesasa_output(fpath):
     """
     Returns per-residue relative accessibility of side-chain and main-chain
@@ -101,10 +97,10 @@ def parse_freesasa_output(fpath):
     asa_data, rsa_data = {}, {}
 
     _rsa = rel_asa
-    _bb = set(('CA', 'C', 'N', 'O'))
+    # _bb = {'CA', 'C', 'N', 'O'}
 
-    P = PDBParser(QUIET=1)
-    s = P.get_structure('bogus', fpath.name)
+    p = PDBParser(QUIET=1)
+    s = p.get_structure('bogus', fpath.name)
     for res in s.get_residues():
         res_id = (res.parent.id, res.resname, res.id[1])
         asa_mc, asa_sc, total_asa = 0, 0, 0

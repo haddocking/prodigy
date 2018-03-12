@@ -49,7 +49,9 @@ def validate_structure(s, selection=None, clean=True):
                     raise ValueError('Selected chain not present in provided structure: {0}'.format(c))
 
         # Remove unselected chains
-        _ignore = lambda x: x.id not in sel_chains
+        def _ignore(x):
+            return x.id not in sel_chains
+
         for c in chains:
             if _ignore(c):
                 c.parent.detach_child(c.id)
@@ -67,7 +69,10 @@ def validate_structure(s, selection=None, clean=True):
     if clean:
         # Remove HETATMs and solvent
         res_list = list(s.get_residues())
-        _ignore = lambda r: r.id[0][0] == 'W' or r.id[0][0] == 'H'
+
+        def _ignore(r):
+            return r.id[0][0] == 'W' or r.id[0][0] == 'H'
+
         for res in res_list:
             if _ignore(res):
                 chain = res.parent
@@ -77,7 +82,10 @@ def validate_structure(s, selection=None, clean=True):
 
         # Remove Hydrogens
         atom_list = list(s.get_atoms())
-        _ignore = lambda x: x.element == 'H'
+
+        def _ignore(x):
+            return x.element == 'H'
+
         for atom in atom_list:
             if _ignore(atom):
                 residue = atom.parent
