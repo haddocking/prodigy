@@ -9,8 +9,6 @@
 Functions to execute freesasa and parse its output.
 """
 
-from __future__ import print_function, division
-
 import os
 import subprocess
 import sys

@@ -10,3 +10,5 @@ Binding affinity prediction methods developed by the Bonvin Lab.
 
 Assorted data files for different predictors.
 """
+
+from .predict_IC import Prodigy
