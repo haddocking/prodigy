@@ -14,9 +14,7 @@ Contacts-based prediction of binding affinity in protein-protein complexes.
 eLife (2015)
 """
 
-
-
-__version__ = '2.0'
+__version__ = '2.1.0'
 
 __author__ = ["Anna Vangone", "Joao Rodrigues", "Joerg Schaarschmidt"]
 
@@ -113,7 +111,7 @@ class Prodigy:
     def __init__(self, struct_obj, selection=None, temp=25.0):
         self.temp = float(temp)
         if selection is None:
-            self.selection = [chain.id for chain in structure.get_chains()]
+            self.selection = [chain.id for chain in struct_obj.get_chains()]
         else:
             self.selection = selection
         self.structure = struct_obj
@@ -240,13 +238,13 @@ class Prodigy:
             handle.close()
 
 
-if __name__ == "__main__":
+def main():
     try:
         import argparse
         from argparse import RawTextHelpFormatter
-    except ImportError as e:
+    except ImportError as err:
         print('[!] The binding affinity prediction tools require Python 2.7+', file=sys.stderr)
-        raise ImportError(e)
+        raise ImportError(err)
 
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=RawTextHelpFormatter)
     ap.add_argument('structf', help='Structure to analyse in PDB or mmCIF format')
@@ -302,3 +300,7 @@ if __name__ == "__main__":
     if cmd.pymol_selection:
         fname = struct_path[:-4] + '.pml'
         prodigy.print_pymol_script(fname)
+
+
+if __name__ == "__main__":
+    main()

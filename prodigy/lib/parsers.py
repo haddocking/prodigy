@@ -127,7 +127,7 @@ def parse_structure(path):
     try:
         s = sparser.get_structure(sname, path)
     except Exception as exeption:
-        logger.error('[!] Structure \'{0}\' could not be parsed'.format(sname), file=sys.stderr)
+        logger.error('[!] Structure \'{0}\' could not be parsed'.format(sname))
         raise Exception(exeption)
 
     return (validate_structure(s),

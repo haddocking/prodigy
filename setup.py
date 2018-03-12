@@ -18,7 +18,7 @@ setup(
     author='Computational Structural Biology Group @ Utrecht University',
     author_email='prodigy.bonvinlab@gmail.com',
     license='Apache 2.0',
-    packages=['prodigy'],
+    packages=['prodigy', 'prodigy.lib'],
     long_description=read('README.md'),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -27,7 +27,7 @@ setup(
     install_requires=requirements,
     entry_points={
         'console_scripts': [
-            'prodigy = prodigy.prodigy:main',
+            'prodigy = prodigy.predict_IC:main',
         ]
     },
     zip_safe=False
