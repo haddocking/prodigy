@@ -9,6 +9,8 @@
 Functions to execute freesasa and parse its output.
 """
 
+
+
 import os
 import subprocess
 import sys
@@ -39,8 +41,13 @@ def execute_freesasa(structure, selection=None):
     io = PDBIO()
 
     # try to get freesasa paths from environment if not use the ones defined in config file
-
-    freesasa, param_f = [os.environ.get(key) for key in ['FREESASA_BIN', 'FREESASA_PAR']]
+    try:
+        freesasa, param_f = [os.environ[key] for key in ['FREESASA_BIN', 'FREESASA_PAR']]
+    except KeyError as err:
+        message = ('{} not found. In order to use PRODIGY, set the FREESASA_BIN and '
+                   'FREESASA_PAR environment variables to point to the freesasa '
+                   'executable and the naccess.config file respectively.')
+        raise KeyError(message.format(err))
 
     if not os.path.isfile(freesasa):
         raise IOError('[!] freesasa binary not found at `{0}`'.format(freesasa))

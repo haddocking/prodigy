@@ -7,7 +7,7 @@ def read(fname):
 
 requirements = [
     "numpy",
-    "biopython",
+    "git+https://github.com/biopython/biopython/",
 ]
 
 setup(
