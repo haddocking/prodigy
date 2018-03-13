@@ -1,9 +1,9 @@
 import os
 from setuptools import setup
-
+import codecs
 
 def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+    return codecs.open(os.path.join(os.path.dirname(__file__), fname), encoding='utf-8').read()
 
 requirements = [
     "numpy",
