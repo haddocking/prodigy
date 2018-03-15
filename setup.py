@@ -7,7 +7,8 @@ def read(fname):
 
 requirements = [
     "numpy",
-    "git+https://github.com/biopython/biopython/",
+    "biopython",
+    "freesasa"
 ]
 
 setup(
@@ -19,6 +20,8 @@ setup(
     author_email='prodigy.bonvinlab@gmail.com',
     license='Apache 2.0',
     packages=['prodigy', 'prodigy.lib'],
+    package_dir={'prodigy': 'prodigy'},
+    package_data={'prodigy':['naccess.config',]},
     long_description=read('README.md'),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -30,5 +33,5 @@ setup(
             'prodigy = prodigy.predict_IC:main',
         ]
     },
-    zip_safe=False
+    zip_safe=True
 )

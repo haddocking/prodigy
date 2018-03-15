@@ -9,12 +9,13 @@
 Functions to execute freesasa and parse its output.
 """
 
-
+from __future__ import print_function, division
 
 import os
 import subprocess
 import sys
 import tempfile
+import pkg_resources
 
 try:
     from Bio.PDB import PDBParser
@@ -25,6 +26,33 @@ except ImportError as e:
 
 
 from .aa_properties import rel_asa
+import contextlib
+
+
+@contextlib.contextmanager
+def stdchannel_redirected(stdchannel, dest_filename):
+    """
+    A context manager to temporarily redirect stdout or stderr
+    https://stackoverflow.com/questions/977840/redirecting-fortran-called-via-f2py-output-in-python/978264#978264
+    e.g.:
+
+
+    with stdchannel_redirected(sys.stderr, os.devnull):
+        if compiler.has_function('clock_gettime', libraries=['rt']):
+            libraries.append('rt')
+    """
+    oldstdchannel, dest_file = None, None
+    try:
+        oldstdchannel = os.dup(stdchannel.fileno())
+        dest_file = open(dest_filename, 'w')
+        os.dup2(dest_file.fileno(), stdchannel.fileno())
+
+        yield
+    finally:
+        if oldstdchannel is not None:
+            os.dup2(oldstdchannel, stdchannel.fileno())
+        if dest_file is not None:
+            dest_file.close()
 
 
 def execute_freesasa(structure, selection=None):
@@ -122,4 +150,48 @@ def parse_freesasa_output(fpath):
 
         rsa_data[res_id] = total_asa / _rsa['total'][res.resname]
 
+    return asa_data, rsa_data
+
+
+def execute_freesasa_api(structure):
+    """
+    Calls freesasa using its Python API and returns
+    per-residue accessibilities.
+    """
+    try:
+        from freesasa import Classifier, structureFromBioPDB, calc
+    except ImportError as err:
+        print('[!] The binding affinity prediction tools require the \'freesasa\' Python API', file=sys.stderr)
+        raise ImportError(err)
+
+    asa_data, rsa_data = {}, {}
+    _rsa = rel_asa['total']
+
+    config_path = os.environ.get('FREESASA_PAR', pkg_resources.resource_filename('prodigy', 'naccess.config'))
+    classifier = Classifier(config_path)
+    pkg_resources.cleanup_resources()
+
+    # classifier = freesasa.Classifier( os.environ["FREESASA_PAR"])
+    # Disable
+    with stdchannel_redirected(sys.stderr, os.devnull):
+        struct = structureFromBioPDB(structure, classifier,)
+        result = calc(struct)
+
+    # iterate over all atoms to get SASA and residue name
+    for idx in range(struct.nAtoms()):
+
+        atname = struct.atomName(idx)
+        resname = struct.residueName(idx)
+        resid = int(struct.residueNumber(idx))
+        chain = struct.chainLabel(idx)
+        at_uid = (chain, resname, resid, atname)
+        res_uid = (chain, resname, resid)
+
+        asa = result.atomArea(idx)
+        asa_data[at_uid] = asa
+        # add asa to residue
+        rsa_data[res_uid] = rsa_data.get(res_uid, 0) + asa
+
+    # convert total asa ro relative asa
+    rsa_data.update((res_uid, asa/_rsa[res_uid[1]]) for res_uid, asa in rsa_data.items())
     return asa_data, rsa_data

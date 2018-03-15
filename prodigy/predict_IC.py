@@ -14,6 +14,8 @@ Contacts-based prediction of binding affinity in protein-protein complexes.
 eLife (2015)
 """
 
+from __future__ import print_function, division
+
 __version__ = '2.1.0'
 
 __author__ = ["Anna Vangone", "Joao Rodrigues", "Joerg Schaarschmidt"]
@@ -27,7 +29,7 @@ except ImportError as e:
     print('[!] The binding affinity prediction tools require Biopython', file=sys.stderr)
     raise ImportError(e)
 
-from .lib.freesasa import execute_freesasa
+from .lib.freesasa_tools import execute_freesasa_api
 from .lib.models import IC_NIS
 from .lib.utils import check_path, dg_to_kd
 from .lib.parsers import parse_structure
@@ -141,7 +143,7 @@ class Prodigy:
         self.bins = analyse_contacts(self.ic_network)
 
         # SASA
-        _, cmplx_sasa = execute_freesasa(self.structure, selection=selection_dict)
+        _, cmplx_sasa = execute_freesasa_api(self.structure)
         self.nis_a, self.nis_c, _ = analyse_nis(cmplx_sasa, acc_threshold=acc_threshold)
 
         # Affinity Calculation
