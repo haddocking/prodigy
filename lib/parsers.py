@@ -64,6 +64,12 @@ def validate_structure(s, selection=None, clean=True):
             residue.detach_child(atom.id)
             residue.add(sel_at)
 
+    # Insertion code check
+    for c in chains:
+        for residue in c.get_residues():
+            if residue.get_id()[2] != ' ':
+                c.detach_child(residue.id)
+
     if clean:
         # Remove HETATMs and solvent
         res_list = list(s.get_residues())
