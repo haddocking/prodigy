@@ -15,10 +15,6 @@ Details of the binding affinity predictor implemented in PRODIGY can be found he
 
 Python 3
 
-```bash
-pip install biopython freesasa
-```
-
 # Installation
 
 ```
