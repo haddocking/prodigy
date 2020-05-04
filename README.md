@@ -20,7 +20,6 @@ Python 3
 ```
 git clone http://github.com/haddocking/prodigy
 cd prodigy
-git checkout python3_package
 pip install .
 
 # Have fun!
