@@ -174,8 +174,11 @@ def execute_freesasa_api(structure):
     # classifier = freesasa.Classifier( os.environ["FREESASA_PAR"])
     # Disable
     with stdchannel_redirected(sys.stderr, os.devnull):
-        struct = structureFromBioPDB(structure, classifier,)
-        result = calc(struct)
+        try:
+            struct = structureFromBioPDB(structure, classifier,)
+            result = calc(struct)
+        except AssertionError as e:
+            raise SystemExit('[!] Error when running freesasa: \n[!] {}'.format(e))
 
     # iterate over all atoms to get SASA and residue name
     for idx in range(struct.nAtoms()):
