@@ -11,21 +11,17 @@ The online version of PRODIGY predictor can be found here:
 Details of the binding affinity predictor implemented in PRODIGY can be found here:
 * [Contacts-based model](http://www.ncbi.nlm.nih.gov/pubmed/26193119)
 
-# Quick & Dirty Installation
-```bash
-git clone http://github.com/biopython/biopython.git
-cd biopython
-sudo python setup.py install # Alternatively, install locally but fix $PYTHONPATH
+# Requirements
 
-wget http://freesasa.github.io/freesasa-2.0.2.tar.gz
-tar -xzvf freesasa-2.0.2.tar.gz
-cd freesasa-2.0.2
-./configure && make && make install
+Python 3
 
-git clone http://github.com/haddocking/binding_affinity
+# Installation
 
-# Edit the config.py to setup the paths to the freesasa binary and radii files
-# or set the respective environment variables (FREESASA_BIN and FREESASA_PAR - these will have precedence)
+```
+git clone http://github.com/haddocking/prodigy
+cd prodigy
+git checkout python3_package
+pip install .
 
 # Have fun!
 ```
@@ -33,12 +29,15 @@ git clone http://github.com/haddocking/binding_affinity
 # Usage
 
 ```bash
-python predict_IC.py <pdb file> [--selection <chain1><chain2>]
+prodigy <pdb file> [--selection <chain1><chain2>]
 ```
 
-Type --help to get a list of all the possible options of the script.
+To get a list of all the possible options.
+```bash
+prodigy --help 
+```
 
-# Installation & Dependencies
+# Information about dependencies
 The scripts rely on [Biopython](www.biopython.org) to validate the PDB structures and calculate
 interatomic distances. [freesasa](https://github.com/mittinatten/freesasa), with the parameter
 set used in NACCESS ([Chothia, 1976](http://www.ncbi.nlm.nih.gov/pubmed/994183)), is also
