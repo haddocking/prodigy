@@ -178,7 +178,9 @@ def execute_freesasa_api(structure):
             struct = structureFromBioPDB(structure, classifier,)
             result = calc(struct)
         except AssertionError as e:
-            raise SystemExit('[!] Error when running freesasa: \n[!] {}'.format(e))
+            error_message = '\n[!] Error when running freesasa: \n[!] {}'.format(e)
+            print(error_message)
+            raise Exception(error_message)
 
     # iterate over all atoms to get SASA and residue name
     for idx in range(struct.nAtoms()):
