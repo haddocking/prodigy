@@ -182,7 +182,7 @@ def execute_freesasa_api(structure):
 
         atname = struct.atomName(idx)
         resname = struct.residueName(idx)
-        resid = int(struct.residueNumber(idx))
+        resid = struct.residueNumber(idx)
         chain = struct.chainLabel(idx)
         at_uid = (chain, resname, resid, atname)
         res_uid = (chain, resname, resid)
