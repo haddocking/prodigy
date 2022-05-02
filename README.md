@@ -6,7 +6,7 @@ Collection of scripts to predict binding affinity values
 for protein-protein complexes from atomic structures.
 
 The online version of PRODIGY predictor can be found here:
-* [PRODIGY](http://milou.science.uu.nl/services/PRODIGY/)
+* [PRODIGY](https://wenmr.science.uu.nl/prodigy/)
 
 Details of the binding affinity predictor implemented in PRODIGY can be found here:
 * [Contacts-based model](http://www.ncbi.nlm.nih.gov/pubmed/26193119)
