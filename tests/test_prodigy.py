@@ -4,14 +4,14 @@
 Run the prodigy tests.
 """
 
-from __future__ import print_function, division
+from __future__ import division, print_function
 
 import json
 import tarfile
 import unittest
-from io import TextIOWrapper, BufferedReader
+from io import BufferedReader, TextIOWrapper
 from os import devnull
-from os.path import join, basename, splitext, dirname
+from os.path import basename, dirname, join, splitext
 from sys import stderr, version_info
 
 import numpy as np
