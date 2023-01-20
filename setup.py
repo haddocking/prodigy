@@ -5,15 +5,12 @@ import codecs
 def read(fname):
     return codecs.open(os.path.join(os.path.dirname(__file__), fname), encoding='utf-8').read()
 
-requirements = [
-    "numpy",
-    "biopython",
-    "freesasa"
-]
+with open("requirements.txt") as f:
+    required = f.read().splitlines()
 
 setup(
     name='prodigy',
-    version = "2.1.0",
+    version = "2.1.1",
     description=("PROtein binDIng enerGY prediction."),
     url='http://github.com/haddocking/prodigy',
     author='Computational Structural Biology Group @ Utrecht University',
@@ -27,7 +24,7 @@ setup(
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: Apache Software License",
     ],
-    install_requires=requirements,
+    install_requires=required,
     entry_points={
         'console_scripts': [
             'prodigy = prodigy.predict_IC:main',
