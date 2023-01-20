@@ -1,5 +1,6 @@
 # PRODIGY / Binding Affinity Prediction
 
+[![unittests](https://github.com/haddocking/prodigy/actions/workflows/unittests.yml/badge.svg)](https://github.com/haddocking/prodigy/actions/workflows/unittests.yml)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1193244.svg)](https://doi.org/10.5281/zenodo.1193244)
 
 Collection of scripts to predict binding affinity values
