@@ -26,7 +26,7 @@ jobs:
 
       - name: Test
         run: |
-          coverage run -m unittest discover -s tests -p "*_test.py"
+          coverage run -m unittest
           coverage xml
 
       # - name: Run codacy-coverage-reporter
