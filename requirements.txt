@@ -1,2 +1,2 @@
-biopython
-freesasa
+biopython==1.80
+freesasa==2.1.0

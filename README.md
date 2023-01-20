@@ -6,10 +6,12 @@ Collection of scripts to predict binding affinity values
 for protein-protein complexes from atomic structures.
 
 The online version of PRODIGY predictor can be found here:
-* [PRODIGY](https://wenmr.science.uu.nl/prodigy/)
+
+- [PRODIGY](https://wenmr.science.uu.nl/prodigy/)
 
 Details of the binding affinity predictor implemented in PRODIGY can be found here:
-* [Contacts-based model](http://www.ncbi.nlm.nih.gov/pubmed/26193119)
+
+- [Contacts-based model](http://www.ncbi.nlm.nih.gov/pubmed/26193119)
 
 # Requirements
 
@@ -32,11 +34,13 @@ prodigy <pdb file> [--selection <chain1><chain2>]
 ```
 
 To get a list of all the possible options.
+
 ```bash
-prodigy --help 
+prodigy --help
 ```
 
 # Information about dependencies
+
 The scripts rely on [Biopython](www.biopython.org) to validate the PDB structures and calculate
 interatomic distances. [freesasa](https://github.com/mittinatten/freesasa), with the parameter
 set used in NACCESS ([Chothia, 1976](http://www.ncbi.nlm.nih.gov/pubmed/994183)), is also
@@ -52,18 +56,21 @@ archive. Make sure `freesasa` and Biopython are accessible to the Python scripts
 through the appropriate environment variables ($PYTHONPATH).
 
 # License
+
 These utilities are open-source and licensed under the Apache License 2.0. For more information
 read the LICENSE file.
 
 # Citing us
+
 If our predictive model or any scripts are useful to you, consider citing them in your
 publications:
 
-**Xue L, Rodrigues J, Kastritis P, Bonvin A.M.J.J, Vangone A.**: PRODIGY: a web server for predicting the binding affinity of protein-protein complexes. *Bioinformatics* (2016) ([link](http://bioinformatics.oxfordjournals.org/content/early/2016/08/27/bioinformatics.btw514))
+**Xue L, Rodrigues J, Kastritis P, Bonvin A.M.J.J, Vangone A.**: PRODIGY: a web server for predicting the binding affinity of protein-protein complexes. _Bioinformatics_ (2016) ([link](http://bioinformatics.oxfordjournals.org/content/early/2016/08/27/bioinformatics.btw514))
 
-**Anna Vangone and Alexandre M.J.J. Bonvin**: Contacts-based prediction of binding affinity in protein-protein complexes. *eLife*, e07454 (2015) ([link](http://www.ncbi.nlm.nih.gov/pubmed/26193119))
+**Anna Vangone and Alexandre M.J.J. Bonvin**: Contacts-based prediction of binding affinity in protein-protein complexes. _eLife_, e07454 (2015) ([link](http://www.ncbi.nlm.nih.gov/pubmed/26193119))
 
-**Panagiotis L. Kastritis , João P.G.L.M. Rodrigues, Gert E. Folkers, Rolf Boelens, Alexandre M.J.J. Bonvin**: Proteins Feel More Than They See: Fine-Tuning of Binding Affinity by Properties of the Non-Interacting Surface. *Journal of Molecular Biology*, 14, 2632–2652 (2014). ([link](http://www.ncbi.nlm.nih.gov/pubmed/24768922))
+**Panagiotis L. Kastritis , João P.G.L.M. Rodrigues, Gert E. Folkers, Rolf Boelens, Alexandre M.J.J. Bonvin**: Proteins Feel More Than They See: Fine-Tuning of Binding Affinity by Properties of the Non-Interacting Surface. _Journal of Molecular Biology_, 14, 2632–2652 (2014). ([link](http://www.ncbi.nlm.nih.gov/pubmed/24768922))
 
 # Contact
+
 For questions about PRODIGY usage, please contact the team at: prodigy.bonvinlab@gmail.com
