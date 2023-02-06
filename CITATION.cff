@@ -1,5 +1,11 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
 cff-version: 1.2.0
 title: PRODIGY
+message: >-
+  Contacts-based prediction of binding affinity in
+  protein–protein complexes
 type: software
 authors:
   - given-names: Anna
@@ -16,5 +22,7 @@ authors:
     affiliation: University of Utrecht
 repository-code: 'https://github.com/haddocking/prodigy'
 url: 'https://wenmr.science.uu.nl/prodigy'
-abstract: A tool to predict binding affinity values for protein-protein complexes from atomic structures.
+abstract: >-
+  A tool to predict binding affinity values for
+  protein-protein complexes from atomic structures.
 license: Apache-2.0
