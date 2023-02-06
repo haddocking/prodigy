@@ -143,8 +143,9 @@ class Prodigy:
             chains = group.split(",")
             for chain in chains:
                 if chain in selection_dict:
-                    errmsg = "Selections must be disjoint sets: {0} is repeated".format(
-                        chain
+                    errmsg = (
+                        "Selections must be disjoint sets: "
+                        f"{chain} is repeated"
                     )
                     raise ValueError(errmsg)
                 selection_dict[chain] = igroup
@@ -244,9 +245,8 @@ class Prodigy:
                 )
             )
             handle.write(
-                "[++] Predicted binding affinity (kcal.mol-1): {0:8.1f}\n".format(
-                    self.ba_val
-                )
+                "[++] Predicted binding "
+                "affinity (kcal.mol-1): {0:8.1f}\n".format(self.ba_val)
             )
             handle.write(
                 "[++] Predicted dissociation constant (M) at {:.1f}˚C:"

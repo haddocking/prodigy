@@ -22,9 +22,6 @@ coverage = "^7.1.0"
 [tool.setuptools]
 packages = ["prodigy", "prodigy.lib"]
 
-[tool.black]
-line-length = 79
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
