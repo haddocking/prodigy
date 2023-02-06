@@ -39,9 +39,9 @@ jobs:
       - run: poetry install --no-interaction --no-root
         if: steps.cache-deps.outputs.cache-hit != 'true'
 
-      - run: poetry install --no-interaction --with test
-
-      - run: poetry run coverage run -m unittest
+      - run: |
+          poetry run coverage run -m unittest
+          poetry run coverage xml
 
       - name: Run codacy-coverage-reporter
         uses: codacy/codacy-coverage-reporter-action@v1
