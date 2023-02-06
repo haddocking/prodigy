@@ -112,7 +112,7 @@ def execute_freesasa(structure, selection=None):
         freesasa, _outf.name, param_f, _pdbf.name
     )
     p = subprocess.Popen(
-        cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
     stdout, stderr = p.communicate()
 
