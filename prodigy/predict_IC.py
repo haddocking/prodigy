@@ -16,7 +16,7 @@ eLife (2015)
 
 from __future__ import division, print_function
 
-__version__ = "2.1.0"
+__version__ = "2.1.2"
 
 __author__ = ["Anna Vangone", "Joao Rodrigues", "Joerg Schaarschmidt"]
 
