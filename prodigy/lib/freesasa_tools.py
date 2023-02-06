@@ -12,7 +12,7 @@ Functions to execute freesasa and parse its output.
 from __future__ import division, print_function
 
 import os
-import subprocess
+import subprocess  # nosec
 import sys
 import tempfile
 
@@ -117,7 +117,12 @@ def execute_freesasa(structure, selection=None):
     cmd = "{0} -o {1} --format=pdb -c {2} {3}".format(
         freesasa, _outf.name, param_f, _pdbf.name
     )
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen(  # nosec
+        cmd,
+        shell=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     stdout, stderr = p.communicate()
 
     if p.returncode:
