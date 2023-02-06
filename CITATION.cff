@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+title: PRODIGY
+type: software
+authors:
+  - given-names: Anna
+    family-names: Vangone
+    affiliation: University of Utrecht
+  - given-names: Joerg
+    family-names: Schaarschmidt
+    affiliation: University of Utrecht
+  - given-names: João
+    family-names: Rodrigues
+    affiliation: University of Utrecht
+  - given-names: Alexandre
+    family-names: Bonvin
+    affiliation: University of Utrecht
+repository-code: 'https://github.com/haddocking/prodigy'
+url: 'https://wenmr.science.uu.nl/prodigy'
+abstract: A tool to predict binding affinity values for protein-protein complexes from atomic structures.
+license: Apache-2.0
