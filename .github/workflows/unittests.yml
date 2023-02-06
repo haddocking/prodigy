@@ -7,7 +7,7 @@ jobs:
     runs-on: ${{ matrix.platform }}
     strategy:
       matrix:
-        platform: [ubuntu-latest]
+        platform: [ubuntu-latest, macos-latest]
         python-version: ["3.7.15", "3.8.16", "3.9.16", "3.10.9"]
 
     steps:
@@ -22,7 +22,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt coverage
+          pip install --upgrade pip
+          pip install poetry coverage
+          poetry install
 
       - name: Test
         run: |
