@@ -16,7 +16,7 @@ eLife (2015)
 
 from __future__ import division, print_function
 
-__version__ = "2.1.0"
+__version__ = "2.1.2"
 
 __author__ = ["Anna Vangone", "Joao Rodrigues", "Joerg Schaarschmidt"]
 
@@ -27,7 +27,8 @@ try:
     from Bio.PDB import NeighborSearch
 except ImportError as e:
     print(
-        "[!] The binding affinity prediction tools require Biopython", file=sys.stderr
+        "[!] The binding affinity prediction tools require Biopython",
+        file=sys.stderr,
     )
     raise ImportError(e)
 
@@ -83,7 +84,7 @@ def analyse_contacts(contact_list):
     }
 
     _data = aa_properties.aa_character_ic
-    for (res_i, res_j) in contact_list:
+    for res_i, res_j in contact_list:
         contact_type = (_data.get(res_i.resname), _data.get(res_j.resname))
         contact_type = "".join(sorted(contact_type))
         bins[contact_type] += 1
@@ -142,8 +143,9 @@ class Prodigy:
             chains = group.split(",")
             for chain in chains:
                 if chain in selection_dict:
-                    errmsg = "Selections must be disjoint sets: {0} is repeated".format(
-                        chain
+                    errmsg = (
+                        "Selections must be disjoint sets: "
+                        f"{chain} is repeated"
                     )
                     raise ValueError(errmsg)
                 selection_dict[chain] = igroup
@@ -157,7 +159,9 @@ class Prodigy:
 
         # SASA
         _, cmplx_sasa = execute_freesasa_api(self.structure)
-        self.nis_a, self.nis_c, _ = analyse_nis(cmplx_sasa, acc_threshold=acc_threshold)
+        self.nis_a, self.nis_c, _ = analyse_nis(
+            cmplx_sasa, acc_threshold=acc_threshold
+        )
 
         # Affinity Calculation
         self.ba_val = IC_NIS(
@@ -191,44 +195,62 @@ class Prodigy:
             handle = sys.stdout
 
         if quiet:
-            handle.write("{0}\t{1:8.3f}\n".format(self.structure.id, self.ba_val))
+            handle.write(
+                "{0}\t{1:8.3f}\n".format(self.structure.id, self.ba_val)
+            )
         else:
             handle.write(
-                "[+] No. of intermolecular contacts: {0}\n".format(len(self.ic_network))
-            )
-            handle.write(
-                "[+] No. of charged-charged contacts: {0}\n".format(self.bins["CC"])
-            )
-            handle.write(
-                "[+] No. of charged-polar contacts: {0}\n".format(self.bins["CP"])
-            )
-            handle.write(
-                "[+] No. of charged-apolar contacts: {0}\n".format(self.bins["AC"])
-            )
-            handle.write(
-                "[+] No. of polar-polar contacts: {0}\n".format(self.bins["PP"])
-            )
-            handle.write(
-                "[+] No. of apolar-polar contacts: {0}\n".format(self.bins["AP"])
-            )
-            handle.write(
-                "[+] No. of apolar-apolar contacts: {0}\n".format(self.bins["AA"])
-            )
-            handle.write(
-                "[+] Percentage of apolar NIS residues: {0:3.2f}\n".format(self.nis_a)
-            )
-            handle.write(
-                "[+] Percentage of charged NIS residues: {0:3.2f}\n".format(self.nis_c)
-            )
-            handle.write(
-                "[++] Predicted binding affinity (kcal.mol-1): {0:8.1f}\n".format(
-                    self.ba_val
+                "[+] No. of intermolecular contacts: {0}\n".format(
+                    len(self.ic_network)
                 )
             )
             handle.write(
-                "[++] Predicted dissociation constant (M) at {:.1f}˚C: {:8.1e}\n".format(
-                    self.temp, self.kd_val
+                "[+] No. of charged-charged contacts: {0}\n".format(
+                    self.bins["CC"]
                 )
+            )
+            handle.write(
+                "[+] No. of charged-polar contacts: {0}\n".format(
+                    self.bins["CP"]
+                )
+            )
+            handle.write(
+                "[+] No. of charged-apolar contacts: {0}\n".format(
+                    self.bins["AC"]
+                )
+            )
+            handle.write(
+                "[+] No. of polar-polar contacts: {0}\n".format(
+                    self.bins["PP"]
+                )
+            )
+            handle.write(
+                "[+] No. of apolar-polar contacts: {0}\n".format(
+                    self.bins["AP"]
+                )
+            )
+            handle.write(
+                "[+] No. of apolar-apolar contacts: {0}\n".format(
+                    self.bins["AA"]
+                )
+            )
+            handle.write(
+                "[+] Percentage of apolar NIS residues: {0:3.2f}\n".format(
+                    self.nis_a
+                )
+            )
+            handle.write(
+                "[+] Percentage of charged NIS residues: {0:3.2f}\n".format(
+                    self.nis_c
+                )
+            )
+            handle.write(
+                "[++] Predicted binding "
+                "affinity (kcal.mol-1): {0:8.1f}\n".format(self.ba_val)
+            )
+            handle.write(
+                "[++] Predicted dissociation constant (M) at {:.1f}˚C:"
+                " {:8.1e}\n".format(self.temp, self.kd_val)
             )
 
         if handle is not sys.stdout:
@@ -241,7 +263,10 @@ class Prodigy:
             handle = sys.stdout
 
         for res1, res2 in self.ic_network:
-            _fmt_str = "{0.resname:>5s} {0.id[1]:5} {0.parent.id:>3s} {1.resname:>5s} {1.id[1]:5} {1.parent.id:>3s}\n"
+            _fmt_str = (
+                "{0.resname:>5s} {0.id[1]:5} {0.parent.id:>3s} {1.resname:>5s}"
+                " {1.id[1]:5} {1.parent.id:>3s}\n"
+            )
             if res1.parent.id not in self.selection[0]:
                 res1, res2 = res2, res1
             handle.write(_fmt_str.format(res1, res2))
@@ -279,7 +304,8 @@ class Prodigy:
             ]
         )
 
-        # loop over interfaces construct selection strings and write interface related commands
+        # loop over interfaces construct selection strings
+        #  and write interface related commands
         for color, iface in [("blue", 1), ("hotpink", 2)]:
             p_sel_string = " or ".join(
                 [
@@ -310,7 +336,9 @@ def main():
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=RawTextHelpFormatter
     )
-    ap.add_argument("structf", help="Structure to analyse in PDB or mmCIF format")
+    ap.add_argument(
+        "structf", help="Structure to analyse in PDB or mmCIF format"
+    )
     ap.add_argument(
         "--distance-cutoff",
         type=float,
@@ -363,8 +391,10 @@ def main():
     chains as part of a single group:
 
     --selection A B => Contacts calculated (only) between chains A and B.
-    --selection A,B C => Contacts calculated (only) between chains A and C; and B and C.
-    --selection A B C => Contacts calculated (only) between chains A and B; B and C; and A and C.
+    --selection A,B C => Contacts calculated (only) between \
+        chains A and C; and B and C.
+    --selection A B C => Contacts calculated (only) between \
+        chains A and B; B and C; and A and C.
     """
     sel_opt = ap.add_argument_group("Selection Options", description=_co_help)
     sel_opt.add_argument("--selection", nargs="+", metavar=("A B", "A,B C"))
@@ -373,7 +403,9 @@ def main():
 
     # setup logging
     log_level = logging.ERROR if cmd.quiet else logging.INFO
-    logging.basicConfig(level=log_level, stream=sys.stdout, format="%(message)s")
+    logging.basicConfig(
+        level=log_level, stream=sys.stdout, format="%(message)s"
+    )
     logger = logging.getLogger("Prodigy")
 
     struct_path = check_path(cmd.structf)
