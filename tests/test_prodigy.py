@@ -41,7 +41,10 @@ def get_data_path(path):
 
 class ProdigyOutputTest(unittest.TestCase):
     def test_dataset(self):
-        """Test method to compare prediction for 80 dataset cases with  expected values."""
+        """
+        Test method to compare prediction for 80 dataset cases with
+            expected values.
+        """
         # load expected data from json
         with open(get_data_path("dataset.json")) as fh:
             expected_data = json.load(fh)
@@ -71,14 +74,16 @@ class ProdigyOutputTest(unittest.TestCase):
                 )
             # Test for structure object
             self.assertIsInstance(s, Structure.Structure)
-            # instantiate Prdigy object, run prediction and retrieve result dict
+            # instantiate Prdigy object,
+            #  run prediction and retrieve result dict
             prod = Prodigy(s, selection=["A", "B"])
             prod.predict()
             results = prod.as_dict()
             # check for equality of prdicted interface residues
             for k in keys_equal:
                 self.assertEqual(results[k], expected_data[s_name][k])
-            # check that NIS and binding afinity values are within 2% of expected values and add diffs for summary
+            # check that NIS and binding afinity values are within 2% of
+            #  expected values and add diffs for summary
             for k in diffs.keys():
                 delta = abs(results[k] / expected_data[s_name][k] - 1)
                 # assume a difference of less then 2%
