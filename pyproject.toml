@@ -3,7 +3,9 @@ name = "prodigy"
 license = "Apache-2.0"
 version = "2.1.1"
 description = "PROtein binDIng enerGY prediction"
-authors = ["Computational Structural Biology Group at Utrecht University <prodigy.bonvinlab@gmail.com>"]
+authors = [
+  "Computational Structural Biology Group at Utrecht University <prodigy.bonvinlab@gmail.com>",
+]
 readme = "README.md"
 
 [tool.poetry.dependencies]
