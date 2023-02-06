@@ -16,6 +16,9 @@ freesasa = "2.1.0"
 [tool.poetry.scripts]
 prodigy = "prodigy.predict_IC:main"
 
+[tool.poetry.group.test.dependencies]
+coverage = "^7.1.0"
+
 [tool.setuptools]
 packages = ["prodigy", "prodigy.lib"]
 
