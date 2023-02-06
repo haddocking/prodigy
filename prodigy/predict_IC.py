@@ -160,8 +160,9 @@ class Prodigy:
         # SASA
         _, cmplx_sasa = execute_freesasa_api(self.structure)
         self.nis_a, self.nis_c, _ = analyse_nis(
-            cmplx_sasa, acc_threshold=acc_threshold
-        )
+            cmplx_sasa,
+            acc_threshold=acc_threshold
+            )
 
         # Affinity Calculation
         self.ba_val = IC_NIS(
@@ -196,53 +197,54 @@ class Prodigy:
 
         if quiet:
             handle.write(
-                "{0}\t{1:8.3f}\n".format(self.structure.id, self.ba_val)
-            )
+                "{0}\t{1:8.3f}\n".format(
+                    self.structure.id,
+                    self.ba_val))
         else:
             handle.write(
                 "[+] No. of intermolecular contacts: {0}\n".format(
                     len(self.ic_network)
-                )
+                    )
             )
             handle.write(
                 "[+] No. of charged-charged contacts: {0}\n".format(
                     self.bins["CC"]
-                )
+                    )
             )
             handle.write(
                 "[+] No. of charged-polar contacts: {0}\n".format(
                     self.bins["CP"]
-                )
+                    )
             )
             handle.write(
                 "[+] No. of charged-apolar contacts: {0}\n".format(
                     self.bins["AC"]
-                )
+                    )
             )
             handle.write(
                 "[+] No. of polar-polar contacts: {0}\n".format(
                     self.bins["PP"]
-                )
+                    )
             )
             handle.write(
                 "[+] No. of apolar-polar contacts: {0}\n".format(
                     self.bins["AP"]
-                )
+                    )
             )
             handle.write(
                 "[+] No. of apolar-apolar contacts: {0}\n".format(
                     self.bins["AA"]
-                )
+                    )
             )
             handle.write(
                 "[+] Percentage of apolar NIS residues: {0:3.2f}\n".format(
                     self.nis_a
-                )
+                    )
             )
             handle.write(
                 "[+] Percentage of charged NIS residues: {0:3.2f}\n".format(
                     self.nis_c
-                )
+                    )
             )
             handle.write(
                 "[++] Predicted binding "
@@ -337,8 +339,8 @@ def main():
         description=__doc__, formatter_class=RawTextHelpFormatter
     )
     ap.add_argument(
-        "structf", help="Structure to analyse in PDB or mmCIF format"
-    )
+        "structf",
+        help="Structure to analyse in PDB or mmCIF format")
     ap.add_argument(
         "--distance-cutoff",
         type=float,
@@ -404,8 +406,9 @@ def main():
     # setup logging
     log_level = logging.ERROR if cmd.quiet else logging.INFO
     logging.basicConfig(
-        level=log_level, stream=sys.stdout, format="%(message)s"
-    )
+        level=log_level,
+        stream=sys.stdout,
+        format="%(message)s")
     logger = logging.getLogger("Prodigy")
 
     struct_path = check_path(cmd.structf)
