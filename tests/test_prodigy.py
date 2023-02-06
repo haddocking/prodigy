@@ -17,9 +17,9 @@ from sys import stderr, version_info
 import numpy as np
 from Bio.PDB import PDBParser, Structure
 
-from prodigy.predict_IC import Prodigy
 from prodigy.lib.freesasa_tools import stdchannel_redirected
 from prodigy.lib.parsers import validate_structure
+from prodigy.predict_IC import Prodigy
 
 
 def get_data_path(path):

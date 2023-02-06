@@ -19,6 +19,9 @@ prodigy = "prodigy.predict_IC:main"
 [tool.poetry.group.test.dependencies]
 coverage = "^7.1.0"
 
+[tool.black]
+line-length = 79
+
 [tool.setuptools]
 packages = ["prodigy", "prodigy.lib"]
 

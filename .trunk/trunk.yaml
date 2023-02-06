@@ -8,25 +8,23 @@ plugins:
       uri: https://github.com/trunk-io/plugins
 lint:
   enabled:
-    - taplo@0.7.0
-    - actionlint@1.6.23
-    - git-diff-check
     - gitleaks@8.15.3
-    - isort@5.12.0
+    - actionlint@1.6.23
     - markdownlint@0.33.0
+    - git-diff-check
     - prettier@2.8.3
+    - taplo@0.7.0
     - flake8@6.0.0
-  disabled:
-    - black
+    - black@23.1.0
+    - isort@5.12.0
 runtimes:
   enabled:
     - go@1.18.3
     - node@18.12.1
     - python@3.10.8
 actions:
-  disabled:
+  enabled:
     - trunk-announce
     - trunk-check-pre-push
     - trunk-fmt-pre-commit
-  enabled:
     - trunk-upgrade-available

@@ -22,7 +22,8 @@ try:
     from Bio.PDB import PDBIO, PDBParser, Select
 except ImportError as e:
     print(
-        "[!] The binding affinity prediction tools require Biopython", file=sys.stderr
+        "[!] The binding affinity prediction tools require Biopython",
+        file=sys.stderr,
     )
     raise ImportError(e)
 
@@ -71,7 +72,8 @@ def execute_freesasa(structure, selection=None):
     """
     io = PDBIO()
 
-    # try to get freesasa paths from environment if not use the ones defined in config file
+    # try to get freesasa paths from environment if not use the
+    #  ones defined in config file
     try:
         freesasa, param_f = [
             os.environ[key] for key in ["FREESASA_BIN", "FREESASA_PAR"]
@@ -85,9 +87,13 @@ def execute_freesasa(structure, selection=None):
         raise KeyError(message.format(err))
 
     if not os.path.isfile(freesasa):
-        raise IOError("[!] freesasa binary not found at `{0}`".format(freesasa))
+        raise IOError(
+            "[!] freesasa binary not found at `{0}`".format(freesasa)
+        )
     if not os.path.isfile(param_f):
-        raise IOError("[!] Atomic radii file not found at `{0}`".format(param_f))
+        raise IOError(
+            "[!] Atomic radii file not found at `{0}`".format(param_f)
+        )
 
     # Rewrite PDB using Biopython to have a proper format
     # freesasa is very picky with line width (80 characters or fails!)
@@ -111,9 +117,7 @@ def execute_freesasa(structure, selection=None):
     cmd = "{0} -o {1} --format=pdb -c {2} {3}".format(
         freesasa, _outf.name, param_f, _pdbf.name
     )
-    p = subprocess.Popen(
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
 
     if p.returncode:
@@ -147,7 +151,7 @@ def parse_freesasa_output(fpath):
     s = p.get_structure("bogus", fpath.name)
     for res in s.get_residues():
         res_id = (res.parent.id, res.resname, res.id[1])
-        asa_mc, asa_sc, total_asa = 0, 0, 0
+        _, _, total_asa = 0, 0, 0
         for atom in res:
             aname = atom.name
             at_id = (res.parent.id, res.resname, res.id[1], aname)
@@ -173,7 +177,10 @@ def execute_freesasa_api(structure):
         from freesasa import Classifier, calc, structureFromBioPDB
     except ImportError as err:
         print(
-            "[!] The binding affinity prediction tools require the 'freesasa' Python API",
+            (
+                "[!] The binding affinity prediction tools require the "
+                "'freesasa' Python API"
+            ),
             file=sys.stderr,
         )
         raise ImportError(err)
@@ -182,7 +189,8 @@ def execute_freesasa_api(structure):
     _rsa = rel_asa["total"]
 
     config_path = os.environ.get(
-        "FREESASA_PAR", pkg_resources.resource_filename("prodigy", "naccess.config")
+        "FREESASA_PAR",
+        pkg_resources.resource_filename("prodigy", "naccess.config"),
     )
     classifier = Classifier(config_path)
     pkg_resources.cleanup_resources()
@@ -197,13 +205,14 @@ def execute_freesasa_api(structure):
             )
             result = calc(struct)
         except AssertionError as e:
-            error_message = "\n[!] Error when running freesasa: \n[!] {}".format(e)
+            error_message = (
+                "\n[!] Error when running freesasa: \n[!] {}".format(e)
+            )
             print(error_message)
             raise Exception(error_message)
 
     # iterate over all atoms to get SASA and residue name
     for idx in range(struct.nAtoms()):
-
         atname = struct.atomName(idx)
         resname = struct.residueName(idx)
         resid = struct.residueNumber(idx)
