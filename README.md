@@ -22,7 +22,8 @@ PRODIGY is also available as a web service @ [wenmr.science.uu.nl/prodigy](https
 ## Installation
 
 ```text
-pip install prodigy
+git clone https://github.com/haddocking/prodigy && cd prodigy
+pip install .
 ```
 
 If you want to develop PRODIGY, check [DEVELOPMENT](DEVELOPMENT.md) for more details.
