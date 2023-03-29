@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "prodigy"
 license = "Apache-2.0"
-version = "2.1.2"
+version = "2.1.3"
 description = "PROtein binDIng enerGY prediction"
 authors = [
   "Computational Structural Biology Group at Utrecht University <prodigy.bonvinlab@gmail.com>",
@@ -10,7 +10,6 @@ readme = "README.md"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "License :: OSI Approved :: Apache Software License",
-  "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
@@ -19,9 +18,10 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 biopython = "1.80"
 freesasa = "2.1.0"
+numpy = "^1.22.0"
 
 [tool.poetry.scripts]
 prodigy = "prodigy.predict_IC:main"
