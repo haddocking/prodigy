@@ -210,8 +210,13 @@ def execute_freesasa_api(structure):
             )
             result = calc(struct)
         except AssertionError as e:
-            error_message = (
-                "\n[!] Error when running freesasa: \n[!] {}".format(e)
+            error_message = "" + os.linesep()
+            error_message += "[!] Error when running freesasa:" + os.linesep()
+            error_message += f"[!] {e}" + os.linesep()
+            error_message += (
+                "[!] Make sure the atom names in your PDB file match"
+                " the canonical naming and belong "
+                "to default residues" + os.linesep()
             )
             print(error_message)
             raise Exception(error_message)
