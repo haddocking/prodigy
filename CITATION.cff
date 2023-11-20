@@ -2,27 +2,46 @@
 # Visit https://bit.ly/cffinit to generate yours today!
 
 cff-version: 1.2.0
-title: PRODIGY
+title: Prodigy
 message: >-
-  Contacts-based prediction of binding affinity in
-  protein–protein complexes
+  If you use this software, please cite it using the
+  metadata from this file.
 type: software
 authors:
   - given-names: Anna
     family-names: Vangone
-    affiliation: University of Utrecht
+    affiliation: Utrecht University
+  - given-names: Alexandre
+    name-particle: MJJ
+    family-names: Bonvin
+    affiliation: Utrecht University
   - given-names: Joerg
     family-names: Schaarschmidt
-    affiliation: University of Utrecht
-  - given-names: João
+    affiliation: Utrecht University
+  - given-names: Rodrigo
+    family-names: Vargas Honorato
+    affiliation: Utrecht University
+  - given-names: Brian
+    family-names: Jimenez
+    affiliation: Utrecht University
+  - given-names: Joao
     family-names: Rodrigues
-    affiliation: University of Utrecht
-  - given-names: Alexandre
-    family-names: Bonvin
-    affiliation: University of Utrecht
+    affiliation: Utrecht University
+identifiers:
+  - type: doi
+    value: 10.1093/bioinformatics/btw514
+    description: DOI of the web service version
+  - type: doi
+    value: 10.7554/eLife.07454
+  - type: doi
+    value: 10.1016/j.jmb.2014.04.017
 repository-code: 'https://github.com/haddocking/prodigy'
 url: 'https://wenmr.science.uu.nl/prodigy'
 abstract: >-
   A tool to predict binding affinity values for
   protein-protein complexes from atomic structures.
+keywords:
+  - binding affinity
+  - computational biology
+  - protein-protein
 license: Apache-2.0
