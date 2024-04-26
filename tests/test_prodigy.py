@@ -17,9 +17,9 @@ from sys import stderr, version_info
 import numpy as np
 from Bio.PDB import PDBParser, Structure
 
-from prodigy.modules.freesasa_tools import stdchannel_redirected
-from prodigy.modules.parsers import validate_structure
-from prodigy.predict_IC import Prodigy
+from prodigy_prot.modules.freesasa_tools import stdchannel_redirected
+from prodigy_prot.modules.parsers import validate_structure
+from prodigy_prot.predict_IC import Prodigy
 
 
 def get_data_path(path):
@@ -66,7 +66,7 @@ class ProdigyOutputTest(unittest.TestCase):
             handle = dataset.extractfile(entry)
             # Wrap filehandle to ensure string file handle in Python 3
             if version_info[0] >= 3:
-                handle = TextIOWrapper(BufferedReader(handle)) # type: ignore
+                handle = TextIOWrapper(BufferedReader(handle))  # type: ignore
             # Suppress gap warnings when parsing structure
             with stdchannel_redirected(stderr, devnull):
                 s = validate_structure(

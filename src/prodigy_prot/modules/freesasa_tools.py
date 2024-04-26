@@ -195,7 +195,7 @@ def execute_freesasa_api(structure):
 
     config_path = os.environ.get(
         "FREESASA_PAR",
-        pkg_resources.resource_filename("prodigy", "naccess.config"),
+        pkg_resources.resource_filename("prodigy_prot", "naccess.config"),
     )
     classifier = Classifier(config_path)
     pkg_resources.cleanup_resources()

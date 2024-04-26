@@ -16,7 +16,6 @@ eLife (2015)
 
 from __future__ import division, print_function
 
-__version__ = "2.1.5"
 
 __author__ = ["Anna Vangone", "Joao Rodrigues", "Joerg Schaarschmidt"]
 
@@ -32,11 +31,11 @@ except ImportError as e:
     )
     raise ImportError(e)
 
-from prodigy.modules import aa_properties
-from prodigy.modules.freesasa_tools import execute_freesasa_api
-from prodigy.modules.models import IC_NIS
-from prodigy.modules.parsers import parse_structure
-from prodigy.modules.utils import check_path, dg_to_kd
+from prodigy_prot.modules import aa_properties
+from prodigy_prot.modules.freesasa_tools import execute_freesasa_api
+from prodigy_prot.modules.models import IC_NIS
+from prodigy_prot.modules.parsers import parse_structure
+from prodigy_prot.modules.utils import check_path, dg_to_kd
 
 
 def calculate_ic(struct, d_cutoff=5.5, selection=None):
@@ -370,13 +369,6 @@ def main():
         "--quiet",
         action="store_true",
         help="Outputs only the predicted affinity value",
-    )
-    ap.add_argument(
-        "-V",
-        "--version",
-        action="version",
-        version="%(prog)s {}".format(__version__),
-        help="Print the version and exit.",
     )
     _co_help = """
     By default, all intermolecular contacts are taken into consideration,
