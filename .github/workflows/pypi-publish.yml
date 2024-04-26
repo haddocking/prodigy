@@ -1,0 +1,31 @@
+name: publish to PyPI
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  pypi_release:
+    name: Builds Using Poetry and Publishes to PyPI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - uses: snok/install-poetry@v1
+        with:
+          version: 1.3.2
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - run: poetry install
+
+      - run: poetry run pytest
+
+      - run: poetry config pypi-token.pypi "${{ secrets.PYPI_API_KEY }}"
+
+      - name: Publish package
+        run: poetry publish --build
