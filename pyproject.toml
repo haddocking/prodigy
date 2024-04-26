@@ -23,17 +23,22 @@ biopython = "1.80"
 freesasa = "2.2.1"
 numpy = "^1.22.0"
 
-[tool.poetry.scripts]
-prodigy = "prodigy.predict_IC:main"
-
 [tool.poetry.group.test.dependencies]
 coverage = "^7.1.0"
+pytest = "^8.1.1"
+
+[tool.poetry.scripts]
+prodigy = "prodigy.predict_IC:main"
 
 [tool.black]
 line-length = 79
 
 [tool.setuptools]
-packages = ["prodigy", "prodigy.lib"]
+include-package-data = true
+packages = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
 
 [build-system]
 requires = ["poetry-core"]
