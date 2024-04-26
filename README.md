@@ -6,7 +6,7 @@
 [![ci](https://github.com/haddocking/prodigy/actions/workflows/ci.yml/badge.svg)](https://github.com/haddocking/prodigy/actions/workflows/ci.yml)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/98180cbac27d4a5aaf46a3dd72c3174d)](https://www.codacy.com/gh/haddocking/prodigy/dashboard?utm_source=github.com&utm_medium=referral&utm_content=haddocking/prodigy&utm_campaign=Badge_Grade)
 [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/98180cbac27d4a5aaf46a3dd72c3174d)](https://www.codacy.com/gh/haddocking/prodigy/dashboard?utm_source=github.com&utm_medium=referral&utm_content=haddocking/prodigy&utm_campaign=Badge_Coverage)
-[![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8B%20%20%E2%97%8F%20%20%E2%97%8F-yellow)](https://fair-software.eu)
+[![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F-green)](https://fair-software.eu)
 
 [![SQAaaS badge shields.io](https://img.shields.io/badge/sqaaas%20software-gold-yellow)](https://api.eu.badgr.io/public/assertions/w8HcpcH4Svi3-UZ93LHHMA "SQAaaS gold badge achieved")
 
