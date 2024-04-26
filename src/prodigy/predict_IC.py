@@ -32,11 +32,11 @@ except ImportError as e:
     )
     raise ImportError(e)
 
-from .lib import aa_properties
-from .lib.freesasa_tools import execute_freesasa_api
-from .lib.models import IC_NIS
-from .lib.parsers import parse_structure
-from .lib.utils import check_path, dg_to_kd
+from prodigy.modules import aa_properties
+from prodigy.modules.freesasa_tools import execute_freesasa_api
+from prodigy.modules.models import IC_NIS
+from prodigy.modules.parsers import parse_structure
+from prodigy.modules.utils import check_path, dg_to_kd
 
 
 def calculate_ic(struct, d_cutoff=5.5, selection=None):
