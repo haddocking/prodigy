@@ -1,16 +1,16 @@
 # PRODIGY / Binding Affinity Prediction 
 
+![PyPI - License](https://img.shields.io/pypi/l/prodigy-prot)
+![PyPI - Status](https://img.shields.io/pypi/status/prodigy-prot)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/prodigy-prot)
 [![ci](https://github.com/haddocking/prodigy/actions/workflows/ci.yml/badge.svg)](https://github.com/haddocking/prodigy/actions/workflows/ci.yml)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/98180cbac27d4a5aaf46a3dd72c3174d)](https://www.codacy.com/gh/haddocking/prodigy/dashboard?utm_source=github.com&utm_medium=referral&utm_content=haddocking/prodigy&utm_campaign=Badge_Grade)
 [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/98180cbac27d4a5aaf46a3dd72c3174d)](https://www.codacy.com/gh/haddocking/prodigy/dashboard?utm_source=github.com&utm_medium=referral&utm_content=haddocking/prodigy&utm_campaign=Badge_Coverage)
-
-
-[![SQAaaS badge shields.io](https://img.shields.io/badge/sqaaas%20software-gold-yellow)](https://api.eu.badgr.io/public/assertions/w8HcpcH4Svi3-UZ93LHHMA "SQAaaS gold badge achieved")
 [![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8B%20%20%E2%97%8F%20%20%E2%97%8F-yellow)](https://fair-software.eu)
 
+[![SQAaaS badge shields.io](https://img.shields.io/badge/sqaaas%20software-gold-yellow)](https://api.eu.badgr.io/public/assertions/w8HcpcH4Svi3-UZ93LHHMA "SQAaaS gold badge achieved")
 
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1193244.svg)](https://doi.org/10.5281/zenodo.1193244)
+
 
 
 [![SQAaaS badge](https://github.com/EOSC-synergy/SQAaaS/raw/master/badges/badges_150x116/badge_software_gold.png)](https://api.eu.badgr.io/public/assertions/w8HcpcH4Svi3-UZ93LHHMA "SQAaaS gold badge achieved")
@@ -22,8 +22,7 @@ PRODIGY is also available as a web service @ [wenmr.science.uu.nl/prodigy](https
 ## Installation
 
 ```text
-git clone https://github.com/haddocking/prodigy && cd prodigy
-pip install .
+pip install prodigy-prot
 ```
 
 If you want to develop PRODIGY, check [DEVELOPMENT](DEVELOPMENT.md) for more details.
