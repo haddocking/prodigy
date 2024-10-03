@@ -15,8 +15,7 @@ import os
 import subprocess  # nosec
 import sys
 import tempfile
-
-import pkg_resources
+from importlib.resources import files
 
 try:
     from Bio.PDB import PDBIO, PDBParser, Select
@@ -195,10 +194,9 @@ def execute_freesasa_api(structure):
 
     config_path = os.environ.get(
         "FREESASA_PAR",
-        pkg_resources.resource_filename("prodigy_prot", "naccess.config"),
+        str(files("prodigy_prot").joinpath("naccess.config")),
     )
     classifier = Classifier(config_path)
-    pkg_resources.cleanup_resources()
 
     # classifier = freesasa.Classifier( os.environ["FREESASA_PAR"])
     # Disable
