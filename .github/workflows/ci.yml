@@ -4,14 +4,18 @@ on: push
 
 jobs:
   test:
-
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+      fail-fast: false
 
-      - uses: actions/setup-python@v4
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: ${{ matrix.python-version }}
 
       - uses: snok/install-poetry@v1
         with:
@@ -19,9 +23,16 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
 
-      - run: poetry install --no-interaction --no-root
+      - name: install prodig
+        run: poetry install --no-interaction --no-root
 
-      - run: poetry run pytest --cov --cov-report xml:coverage.xml --cov-append -vv --hypothesis-show-statistics
+      - name: run tests
+        run: >-
+          poetry run pytest --cov
+          --cov-report xml:coverage.xml
+          --cov-append
+          -vv
+          --hypothesis-show-statistics
 
       - name: Run codacy-coverage-reporter
         uses: codacy/codacy-coverage-reporter-action@v1
