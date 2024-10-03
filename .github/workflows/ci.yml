@@ -23,8 +23,7 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
 
-      - name: install prodig
-        run: poetry install --no-interaction --no-root
+      - run: poetry install --no-interaction --no-root
 
       - name: run tests
         run: >-
