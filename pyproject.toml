@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "prodigy-prot"
 license = "Apache-2.0"
-version = "2.2.3"
+version = "2.2.4"
 description = "PROtein binDIng enerGY prediction"
 authors = [
   "Computational Structural Biology Group at Utrecht University <prodigy.bonvinlab@gmail.com>",
