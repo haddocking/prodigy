@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "prodigy-prot"
 license = "Apache-2.0"
-version = "2.2.4"
+version = "2.2.5"
 description = "PROtein binDIng enerGY prediction"
 authors = [
   "Computational Structural Biology Group at Utrecht University <prodigy.bonvinlab@gmail.com>",
@@ -22,7 +22,7 @@ classifiers = [
 python = "^3.9"
 biopython = "^1.80"
 freesasa = "2.2.1"
-numpy = "^1.22.0"
+numpy = "^2"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.1.1"
