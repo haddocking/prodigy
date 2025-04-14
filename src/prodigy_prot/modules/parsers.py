@@ -44,7 +44,7 @@ def validate_structure(
                 sel_chains.append(c_str)
                 if c_str not in chain_ids:
                     raise ValueError(
-                        "Selected chain not present in provided structure: {c_str}"
+                        f"Selected chain not present in provided structure: {c_str}"
                     )
 
         # Remove unselected chains
