@@ -1,10 +1,3 @@
-#!/usr/bin/env python
-#
-# This code is part of the binding affinity prediction tools distribution
-# and governed by its license.  Please see the LICENSE file that should
-# have been included as part of this package.
-#
-
 """
 Functions to execute freesasa and parse its output.
 """
@@ -16,20 +9,14 @@ import subprocess  # nosec
 import sys
 import tempfile
 from importlib.resources import files
-
-try:
-    from Bio.PDB import PDBIO, PDBParser, Select
-except ImportError as e:
-    print(
-        "[!] The binding affinity prediction tools require Biopython",
-        file=sys.stderr,
-    )
-    raise ImportError(e)
-
+from pathlib import Path
+from Bio.PDB import PDBIO, PDBParser, Select
 
 import contextlib
 
-from .aa_properties import rel_asa
+from prodigy_prot.aa_properties import rel_asa
+
+NACCESS_CONFIG = Path(Path(__file__).parents[0], "data/naccess.config")
 
 
 @contextlib.contextmanager
@@ -86,13 +73,9 @@ def execute_freesasa(structure, selection=None):
         raise KeyError(message.format(err))
 
     if not os.path.isfile(freesasa):
-        raise IOError(
-            "[!] freesasa binary not found at `{0}`".format(freesasa)
-        )
+        raise IOError("[!] freesasa binary not found at `{0}`".format(freesasa))
     if not os.path.isfile(param_f):
-        raise IOError(
-            "[!] Atomic radii file not found at `{0}`".format(param_f)
-        )
+        raise IOError("[!] Atomic radii file not found at `{0}`".format(param_f))
 
     # Rewrite PDB using Biopython to have a proper format
     # freesasa is very picky with line width (80 characters or fails!)
@@ -192,11 +175,7 @@ def execute_freesasa_api(structure):
     asa_data, rsa_data = {}, {}
     _rsa = rel_asa["total"]
 
-    config_path = os.environ.get(
-        "FREESASA_PAR",
-        str(files("prodigy_prot").joinpath("naccess.config")),
-    )
-    classifier = Classifier(config_path)
+    classifier = Classifier(str(NACCESS_CONFIG))
 
     # classifier = freesasa.Classifier( os.environ["FREESASA_PAR"])
     # Disable

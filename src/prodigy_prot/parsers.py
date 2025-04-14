@@ -1,10 +1,3 @@
-#!/usr/bin/env python
-#
-# This code is part of the binding affinity prediction tools distribution
-# and governed by its license.  Please see the LICENSE file that should
-# have been included as part of this package.
-#
-
 """
 Functions to read PDB/mmCIF files
 """
@@ -13,17 +6,9 @@ from __future__ import division, print_function
 
 import logging
 import os
-import sys
 
-try:
-    from Bio.PDB import MMCIFParser, PDBParser
-    from Bio.PDB.Polypeptide import PPBuilder, is_aa
-except ImportError as e:
-    print(
-        "[!] The binding affinity prediction tools require Biopython",
-        file=sys.stderr,
-    )
-    raise ImportError(e)
+from Bio.PDB import MMCIFParser, PDBParser
+from Bio.PDB.Polypeptide import PPBuilder, is_aa
 
 
 def validate_structure(s, selection=None, clean=True):
@@ -55,8 +40,7 @@ def validate_structure(s, selection=None, clean=True):
                 sel_chains.append(c)
                 if c not in chain_ids:
                     raise ValueError(
-                        "Selected chain not present"
-                        f" in provided structure: {c}"
+                        "Selected chain not present" f" in provided structure: {c}"
                     )
 
         # Remove unselected chains
@@ -96,9 +80,7 @@ def validate_structure(s, selection=None, clean=True):
                 chain.detach_child(res.id)
             elif not is_aa(res, standard=True):
                 raise ValueError(
-                    "Unsupported non-standard amino acid found: {0}".format(
-                        res.resname
-                    )
+                    "Unsupported non-standard amino acid found: {0}".format(res.resname)
                 )
 
         # Remove Hydrogens
@@ -122,9 +104,7 @@ def validate_structure(s, selection=None, clean=True):
         for i_pp, pp in enumerate(peptides):
             message += (
                 "\t{1.parent.id} {1.resname}{1.id[1]} < Fragment {0} > "
-                "{2.parent.id} {2.resname}{2.id[1]}\n".format(
-                    i_pp, pp[0], pp[-1]
-                )
+                "{2.parent.id} {2.resname}{2.id[1]}\n".format(i_pp, pp[0], pp[-1])
             )
         logger.warning(message)
         # raise Exception(message)
@@ -148,8 +128,7 @@ def parse_structure(path):
     _ext = {"pdb", "ent", "cif"}
     if s_ext not in _ext:
         raise IOError(
-            f"[!] Structure format '{s_ext}' is "
-            "not supported. Use '.pdb' or '.cif'."
+            f"[!] Structure format '{s_ext}' is " "not supported. Use '.pdb' or '.cif'."
         )
 
     sparser = PDBParser(QUIET=1) if s_ext in {"pdb", "ent"} else MMCIFParser()
