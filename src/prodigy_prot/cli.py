@@ -2,14 +2,12 @@
 Binding affinity predictor based on Intermolecular Contacts (ICs).
 """
 
-from __future__ import division, print_function
-
 import logging
 import sys
 
-from prodigy_prot.parsers import parse_structure
-from prodigy_prot.utils import check_path
-from prodigy_prot.prodigy import Prodigy
+from prodigy_prot.modules.parsers import parse_structure
+from prodigy_prot.modules.prodigy import Prodigy
+from prodigy_prot.modules.utils import check_path
 
 
 def main():
@@ -114,4 +112,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

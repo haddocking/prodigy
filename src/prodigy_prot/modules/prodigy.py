@@ -1,10 +1,11 @@
 import sys
-from Bio.PDB import NeighborSearch
 
-from prodigy_prot import aa_properties
-from prodigy_prot.freesasa_tools import execute_freesasa_api
-from prodigy_prot.models import IC_NIS
-from prodigy_prot.utils import dg_to_kd
+from Bio.PDB.NeighborSearch import NeighborSearch
+
+from prodigy_prot.modules import aa_properties
+from prodigy_prot.modules.freesasa_tools import execute_freesasa_api
+from prodigy_prot.modules.models import IC_NIS
+from prodigy_prot.modules.utils import dg_to_kd
 
 
 def calculate_ic(struct, d_cutoff=5.5, selection=None):

@@ -2,12 +2,11 @@
 Functions to read PDB/mmCIF files
 """
 
-from __future__ import division, print_function
-
 import logging
 import os
 
-from Bio.PDB import MMCIFParser, PDBParser
+from Bio.PDB.MMCIFParser import MMCIFParser
+from Bio.PDB.PDBParser import PDBParser
 from Bio.PDB.Polypeptide import PPBuilder, is_aa
 
 

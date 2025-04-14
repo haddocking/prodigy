@@ -2,21 +2,17 @@
 Functions to execute freesasa and parse its output.
 """
 
-from __future__ import division, print_function
-
+import contextlib
 import os
-import subprocess  # nosec
+import subprocess
 import sys
 import tempfile
-from importlib.resources import files
-from pathlib import Path
-from Bio.PDB import PDBIO, PDBParser, Select
 
-import contextlib
+from Bio.PDB.PDBIO import PDBIO, Select
+from Bio.PDB.PDBParser import PDBParser
 
-from prodigy_prot.aa_properties import rel_asa
-
-NACCESS_CONFIG = Path(Path(__file__).parents[0], "data/naccess.config")
+from prodigy_prot import NACCESS_CONFIG
+from prodigy_prot.modules.aa_properties import rel_asa
 
 
 @contextlib.contextmanager
