@@ -1,6 +1,6 @@
 import sys
 from io import TextIOWrapper
-from typing import Optional, TextIO
+from typing import Optional, TextIO, Union
 
 from Bio.PDB.NeighborSearch import NeighborSearch
 from Bio.PDB.Structure import Structure
@@ -174,7 +174,7 @@ class Prodigy:
         return return_dict
 
     def print_prediction(self, outfile: str = "", quiet: bool = False) -> None:
-        handle: TextIOWrapper | TextIO
+        handle: Union[TextIOWrapper, TextIO]
         if outfile:
             handle = open(outfile, "w")
         else:
@@ -223,7 +223,7 @@ class Prodigy:
             handle.close()
 
     def print_contacts(self, outfile: str = "") -> None:
-        handle: TextIOWrapper | TextIO
+        handle: Union[TextIOWrapper, TextIO]
         if outfile:
             handle = open(outfile, "w")
         else:
