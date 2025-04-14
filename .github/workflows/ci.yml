@@ -19,6 +19,9 @@ jobs:
 
       - run: pip install '.[dev]'
 
+      - name: check types
+        run: mypy .
+
       - name: run tests
         run: >-
           pytest --cov

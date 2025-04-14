@@ -24,7 +24,7 @@ classifiers = [
 dependencies = ["biopython>=1.80", "freesasa>=2.2.1", "numpy>=2"]
 
 [project.optional-dependencies]
-dev = ["pytest", "coverage", "hypothesis", "pytest-cov"]
+dev = ["pytest", "coverage", "hypothesis", "pytest-cov", "mypy"]
 
 [project.scripts]
 prodigy = "prodigy_prot.cli:main"
@@ -35,6 +35,9 @@ packages = ["src"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+
+[tool.mypy]
+disable_error_code = ["import-not-found"]
 
 [build-system]
 requires = ["hatchling"]

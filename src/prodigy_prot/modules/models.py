@@ -3,7 +3,14 @@ Models to predict binding affinity based on molecular properties.
 """
 
 
-def IC_NIS(ic_cc, ic_ca, ic_pp, ic_pa, p_nis_a, p_nis_c):
+def IC_NIS(
+    ic_cc: float,
+    ic_ca: float,
+    ic_pp: float,
+    ic_pa: float,
+    p_nis_a: float,
+    p_nis_c: float,
+) -> float:
     """
     Calculates the predicted binding affinity value
     based on the IC-NIS model.
@@ -20,7 +27,7 @@ def IC_NIS(ic_cc, ic_ca, ic_pp, ic_pa, p_nis_a, p_nis_c):
     )
 
 
-def NIS(p_nis_c, p_nis_p, n_int_atoms):
+def NIS(p_nis_c: float, p_nis_p: float, n_int_atoms: float) -> float:
     """
     Calculates the predicted binding affinity value
     based on the NIS model.

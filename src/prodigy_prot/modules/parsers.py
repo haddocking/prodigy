@@ -4,13 +4,18 @@ Functions to read PDB/mmCIF files
 
 import logging
 import os
+from typing import Optional
 
+from Bio.PDB.Chain import Chain
 from Bio.PDB.MMCIFParser import MMCIFParser
 from Bio.PDB.PDBParser import PDBParser
 from Bio.PDB.Polypeptide import PPBuilder, is_aa
+from Bio.PDB.Structure import Structure
 
 
-def validate_structure(s, selection=None, clean=True):
+def validate_structure(
+    s: Structure, selection: Optional[list[str]] = None, clean: bool = True
+) -> Structure:
     # setup logging
     logger = logging.getLogger("Prodigy")
 
@@ -28,27 +33,28 @@ def validate_structure(s, selection=None, clean=True):
                 s.detach_child(m.id)
 
     # process selected chains
-    chains = list(s.get_chains())
+    chains: list[Chain] = list(s.get_chains())
     chain_ids = set([c.id for c in chains])
 
     if selection:
         sel_chains = []
         # Match selected chain with structure
         for sel in selection:
-            for c in sel.split(","):
-                sel_chains.append(c)
-                if c not in chain_ids:
+            for c_str in sel.split(","):
+                sel_chains.append(c_str)
+                if c_str not in chain_ids:
                     raise ValueError(
-                        "Selected chain not present" f" in provided structure: {c}"
+                        f"Selected chain not present in provided structure: {c_str}"
                     )
 
         # Remove unselected chains
-        def _ignore(x):
+        def _ignore_helper(x) -> bool:
             return x.id not in sel_chains
 
         for c in chains:
-            if _ignore(c):
-                c.parent.detach_child(c.id)
+            if _ignore_helper(c):
+                if c.parent is not None:
+                    c.parent.detach_child(c.id)
 
     # Double occupancy check
     for atom in list(s.get_atoms()):
@@ -111,7 +117,7 @@ def validate_structure(s, selection=None, clean=True):
     return s
 
 
-def parse_structure(path):
+def parse_structure(path: str) -> tuple[Structure, int, int]:
     """
     Parses a structure using Biopython's PDB/mmCIF Parser
     Verifies the integrity of the structure (gaps) and its

@@ -3,7 +3,7 @@ Generic properties of amino acids required for the binding affinity
 prediction methods.
 """
 
-aa_character_ic = {
+aa_character_ic: dict[str, str] = {
     "ALA": "A",
     "CYS": "A",  # ?
     "GLU": "C",
@@ -26,7 +26,7 @@ aa_character_ic = {
     "TYR": "A",
 }
 
-aa_character_protorp = {
+aa_character_protorp: dict[str, str] = {
     "ALA": "A",
     "CYS": "P",
     "GLU": "C",
@@ -52,7 +52,7 @@ aa_character_protorp = {
 # Scaling factors for relative ASA
 # Calculated using extended ALA-X-ALA peptides
 # Taken from NACCESS
-rel_asa = {
+rel_asa: dict[str, dict[str, float]] = {
     "total": {
         "ALA": 107.95,
         "CYS": 134.28,

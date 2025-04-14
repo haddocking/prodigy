@@ -1,6 +1,9 @@
 import sys
+from io import TextIOWrapper
+from typing import Optional, TextIO, Union
 
 from Bio.PDB.NeighborSearch import NeighborSearch
+from Bio.PDB.Structure import Structure
 
 from prodigy_prot.modules import aa_properties
 from prodigy_prot.modules.freesasa_tools import execute_freesasa_api
@@ -8,13 +11,17 @@ from prodigy_prot.modules.models import IC_NIS
 from prodigy_prot.modules.utils import dg_to_kd
 
 
-def calculate_ic(struct, d_cutoff=5.5, selection=None):
+def calculate_ic(
+    struct: Structure, d_cutoff: float = 5.5, selection: Optional[dict[str, int]] = None
+) -> list:
     """
     Calculates intermolecular contacts in a parsed struct object.
     """
     atom_list = list(struct.get_atoms())
     ns = NeighborSearch(atom_list)
     all_list = ns.search_all(radius=d_cutoff, level="R")
+
+    assert all_list is not None
 
     if selection:
         _sd = selection
@@ -37,31 +44,34 @@ def calculate_ic(struct, d_cutoff=5.5, selection=None):
     return ic_list
 
 
-def analyse_contacts(contact_list):
+def analyse_contacts(contact_list: list) -> dict[str, float]:
     """
     Enumerates and classifies contacts based on the chemical characteristics
     of the participating amino acids.
     """
 
     bins = {
-        "AA": 0,
-        "PP": 0,
-        "CC": 0,
-        "AP": 0,
-        "CP": 0,
-        "AC": 0,
+        "AA": 0.0,
+        "PP": 0.0,
+        "CC": 0.0,
+        "AP": 0.0,
+        "CP": 0.0,
+        "AC": 0.0,
     }
 
     _data = aa_properties.aa_character_ic
     for res_i, res_j in contact_list:
-        contact_type = (_data.get(res_i.resname), _data.get(res_j.resname))
-        contact_type = "".join(sorted(contact_type))
+        contact: tuple[str, str] = (
+            _data.get(res_i.resname, ""),
+            _data.get(res_j.resname, ""),
+        )
+        contact_type = "".join(sorted(contact))
         bins[contact_type] += 1
 
     return bins
 
 
-def analyse_nis(sasa_dict, acc_threshold=0.05):
+def analyse_nis(sasa_dict: dict, acc_threshold: float = 0.05) -> list[float]:
     """
     Returns the percentages of apolar, polar, and charged
     residues at the interface, according to an accessibility
@@ -80,34 +90,45 @@ def analyse_nis(sasa_dict, acc_threshold=0.05):
         if rsa >= acc_threshold:
             aa_character = _data[resn]
             aa_index = _char_to_index(aa_character)
+            assert aa_index is not None
             count[aa_index] += 1
 
-    percentages = [100 * x / sum(count) for x in count]
+    percentages = [100.0 * x / sum(count) for x in count]
     # print('[+] No. of buried interface residues: {0}'.format(sum(count)))
     return percentages
 
 
 class Prodigy:
     # init parameters
-    def __init__(self, struct_obj, selection=None, temp=25.0):
+    def __init__(
+        self,
+        struct_obj: Structure,
+        selection: Optional[list[str]] = None,
+        temp: float = 25.0,
+    ):
         self.temp = float(temp)
         if selection is None:
             self.selection = [chain.id for chain in struct_obj.get_chains()]
         else:
             self.selection = selection
         self.structure = struct_obj
-        self.ic_network = {}
-        self.bins = {}
-        self.nis_a = 0
-        self.nis_c = 0
-        self.ba_val = 0
-        self.kd_val = 0
+        self.ic_network: list = []
+        self.bins: dict[str, float] = {}
+        self.nis_a = 0.0
+        self.nis_c = 0.0
+        self.ba_val = 0.0
+        self.kd_val = 0.0
 
-    def predict(self, temp=None, distance_cutoff=5.5, acc_threshold=0.05):
+    def predict(
+        self,
+        temp: Optional[float] = None,
+        distance_cutoff: float = 5.5,
+        acc_threshold: float = 0.05,
+    ):
         if temp is not None:
             self.temp = temp
         # Make selection dict from user option or PDB chains
-        selection_dict = {}
+        selection_dict: dict[str, int] = {}
         for igroup, group in enumerate(self.selection):
             chains = group.split(",")
             for chain in chains:
@@ -138,7 +159,7 @@ class Prodigy:
         )
         self.kd_val = dg_to_kd(self.ba_val, self.temp)
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         return_dict = {
             "structure": self.structure.id,
             "selection": self.selection,
@@ -152,7 +173,8 @@ class Prodigy:
         return_dict.update(self.bins)
         return return_dict
 
-    def print_prediction(self, outfile="", quiet=False):
+    def print_prediction(self, outfile: str = "", quiet: bool = False) -> None:
+        handle: Union[TextIOWrapper, TextIO]
         if outfile:
             handle = open(outfile, "w")
         else:
@@ -200,7 +222,8 @@ class Prodigy:
         if handle is not sys.stdout:
             handle.close()
 
-    def print_contacts(self, outfile=""):
+    def print_contacts(self, outfile: str = "") -> None:
+        handle: Union[TextIOWrapper, TextIO]
         if outfile:
             handle = open(outfile, "w")
         else:
@@ -218,11 +241,11 @@ class Prodigy:
         if handle is not sys.stdout:
             handle.close()
 
-    def print_pymol_script(self, outfile=""):
+    def print_pymol_script(self, outfile: str = "") -> None:
         # Writing output PYMOL: pml script
         # initialize array with chains and save chain selection string
         selection_strings = []
-        chains = {}
+        chains: dict[str, set] = {}
         for s in self.selection:
             selection_strings.append(s.replace(",", "+"))
             for c in s.split(","):
