@@ -10,13 +10,18 @@ import tempfile
 
 from Bio.PDB.PDBIO import PDBIO, Select
 from Bio.PDB.PDBParser import PDBParser
+from Bio.PDB.Structure import Structure
 
 from prodigy_prot import NACCESS_CONFIG
 from prodigy_prot.modules.aa_properties import rel_asa
+from typing import TextIO, Generator, Union, Optional
 
 
 @contextlib.contextmanager
-def stdchannel_redirected(stdchannel, dest_filename):
+def stdchannel_redirected(
+    stdchannel: TextIO,  # Typically sys.stdout or sys.stderr
+    dest_filename: Union[str, bytes, os.PathLike],  # Path to redirect to
+) -> Generator[None, None, None]:
     """
     A context manager to temporarily redirect stdout or stderr
     https://stackoverflow.com/questions/977840/redirecting-fortran-called-via-f2py-output-in-python/978264#978264
@@ -41,7 +46,9 @@ def stdchannel_redirected(stdchannel, dest_filename):
             dest_file.close()
 
 
-def execute_freesasa(structure, selection=None):
+def execute_freesasa(
+    structure: Structure, selection: Optional[list[str]] = None
+) -> tuple[dict, dict]:
     """
     Runs the freesasa executable on a PDB file.
 
@@ -119,7 +126,7 @@ def execute_freesasa(structure, selection=None):
     return asa, rsa
 
 
-def parse_freesasa_output(fpath):
+def parse_freesasa_output(fpath: tempfile._TemporaryFileWrapper) -> tuple[dict, dict]:
     """
     Returns per-residue relative accessibility of side-chain and main-chain
     atoms as calculated by freesasa.
@@ -151,7 +158,7 @@ def parse_freesasa_output(fpath):
     return asa_data, rsa_data
 
 
-def execute_freesasa_api(structure):
+def execute_freesasa_api(structure: Structure) -> tuple[dict, dict]:
     """
     Calls freesasa using its Python API and returns
     per-residue accessibilities.
@@ -168,8 +175,9 @@ def execute_freesasa_api(structure):
         )
         raise ImportError(err)
 
-    asa_data, rsa_data = {}, {}
-    _rsa = rel_asa["total"]
+    asa_data = {}
+    rsa_data: dict[tuple[str, int, str], float] = {}
+    _rsa: dict = rel_asa["total"]
 
     classifier = Classifier(str(NACCESS_CONFIG))
 
@@ -183,13 +191,13 @@ def execute_freesasa_api(structure):
             )
             result = calc(struct)
         except AssertionError as e:
-            error_message = "" + os.linesep()
-            error_message += "[!] Error when running freesasa:" + os.linesep()
-            error_message += f"[!] {e}" + os.linesep()
+            error_message = "" + os.linesep
+            error_message += "[!] Error when running freesasa:" + os.linesep
+            error_message += f"[!] {e}" + os.linesep
             error_message += (
                 "[!] Make sure the atom names in your PDB file match"
                 " the canonical naming and belong "
-                "to default residues" + os.linesep()
+                "to default residues" + os.linesep
             )
             print(error_message)
             raise Exception(error_message)
