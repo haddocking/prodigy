@@ -3,7 +3,12 @@ name = "prodigy-prot"
 license = "Apache-2.0"
 version = "2.2.5"
 description = "PROtein binDIng enerGY prediction"
-authors = [{ name = "BonvinLab", email = "bonvinlab.support@uu.nl" }]
+authors = [
+  { name = "Anna Vangone" },
+  { name = "Joao Rodrigues" },
+  { name = "Joerg Schaarschmidt" },
+]
+maintainers = [{ name = "BonvinLab", email = "bonvinlab.support@uu.nl" }]
 readme = "README.md"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
