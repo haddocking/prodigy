@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
       fail-fast: false
 
     steps:
@@ -17,17 +17,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - uses: snok/install-poetry@v1
-        with:
-          version: 1.3.2
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - run: poetry install --no-interaction --no-root
+      - run: pip install '.[dev]'
 
       - name: run tests
         run: >-
-          poetry run pytest --cov
+          pytest --cov
           --cov-report xml:coverage.xml
           --cov-append
           -vv
