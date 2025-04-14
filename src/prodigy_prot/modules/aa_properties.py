@@ -1,16 +1,7 @@
-#!/usr/bin/env python
-#
-# This code is part of the binding affinity prediction tools distribution
-# and governed by its license.  Please see the LICENSE file that should
-# have been included as part of this package.
-#
-
 """
 Generic properties of amino acids required for the binding affinity
 prediction methods.
 """
-
-__author__ = ["Anna Vangone", "Joao Rodrigues"]
 
 aa_character_ic = {
     "ALA": "A",

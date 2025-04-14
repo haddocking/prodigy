@@ -1,41 +1,11 @@
-# coding: utf-8
-# !/usr/bin/env python
-#
-# This code is part of the binding affinity prediction tools distribution
-# and governed by its license.  Please see the LICENSE file that should
-# have been included as part of this package.
-#
-
-"""
-Binding affinity predictor based on Intermolecular Contacts (ICs).
-
-Anna Vangone and Alexandre M.J.J. Bonvin,
-Contacts-based prediction of binding affinity in protein-protein complexes.
-eLife (2015)
-"""
-
-from __future__ import division, print_function
-
-
-__author__ = ["Anna Vangone", "Joao Rodrigues", "Joerg Schaarschmidt"]
-
-import logging
 import sys
 
-try:
-    from Bio.PDB import NeighborSearch
-except ImportError as e:
-    print(
-        "[!] The binding affinity prediction tools require Biopython",
-        file=sys.stderr,
-    )
-    raise ImportError(e)
+from Bio.PDB.NeighborSearch import NeighborSearch
 
 from prodigy_prot.modules import aa_properties
 from prodigy_prot.modules.freesasa_tools import execute_freesasa_api
 from prodigy_prot.modules.models import IC_NIS
-from prodigy_prot.modules.parsers import parse_structure
-from prodigy_prot.modules.utils import check_path, dg_to_kd
+from prodigy_prot.modules.utils import dg_to_kd
 
 
 def calculate_ic(struct, d_cutoff=5.5, selection=None):
@@ -142,10 +112,7 @@ class Prodigy:
             chains = group.split(",")
             for chain in chains:
                 if chain in selection_dict:
-                    errmsg = (
-                        "Selections must be disjoint sets: "
-                        f"{chain} is repeated"
-                    )
+                    errmsg = "Selections must be disjoint sets: " f"{chain} is repeated"
                     raise ValueError(errmsg)
                 selection_dict[chain] = igroup
 
@@ -158,9 +125,7 @@ class Prodigy:
 
         # SASA
         _, cmplx_sasa = execute_freesasa_api(self.structure)
-        self.nis_a, self.nis_c, _ = analyse_nis(
-            cmplx_sasa, acc_threshold=acc_threshold
-        )
+        self.nis_a, self.nis_c, _ = analyse_nis(cmplx_sasa, acc_threshold=acc_threshold)
 
         # Affinity Calculation
         self.ba_val = IC_NIS(
@@ -194,54 +159,34 @@ class Prodigy:
             handle = sys.stdout
 
         if quiet:
-            handle.write(
-                "{0}\t{1:8.3f}\n".format(self.structure.id, self.ba_val)
-            )
+            handle.write("{0}\t{1:8.3f}\n".format(self.structure.id, self.ba_val))
         else:
             handle.write(
-                "[+] No. of intermolecular contacts: {0}\n".format(
-                    len(self.ic_network)
-                )
+                "[+] No. of intermolecular contacts: {0}\n".format(len(self.ic_network))
             )
             handle.write(
-                "[+] No. of charged-charged contacts: {0}\n".format(
-                    self.bins["CC"]
-                )
+                "[+] No. of charged-charged contacts: {0}\n".format(self.bins["CC"])
             )
             handle.write(
-                "[+] No. of charged-polar contacts: {0}\n".format(
-                    self.bins["CP"]
-                )
+                "[+] No. of charged-polar contacts: {0}\n".format(self.bins["CP"])
             )
             handle.write(
-                "[+] No. of charged-apolar contacts: {0}\n".format(
-                    self.bins["AC"]
-                )
+                "[+] No. of charged-apolar contacts: {0}\n".format(self.bins["AC"])
             )
             handle.write(
-                "[+] No. of polar-polar contacts: {0}\n".format(
-                    self.bins["PP"]
-                )
+                "[+] No. of polar-polar contacts: {0}\n".format(self.bins["PP"])
             )
             handle.write(
-                "[+] No. of apolar-polar contacts: {0}\n".format(
-                    self.bins["AP"]
-                )
+                "[+] No. of apolar-polar contacts: {0}\n".format(self.bins["AP"])
             )
             handle.write(
-                "[+] No. of apolar-apolar contacts: {0}\n".format(
-                    self.bins["AA"]
-                )
+                "[+] No. of apolar-apolar contacts: {0}\n".format(self.bins["AA"])
             )
             handle.write(
-                "[+] Percentage of apolar NIS residues: {0:3.2f}\n".format(
-                    self.nis_a
-                )
+                "[+] Percentage of apolar NIS residues: {0:3.2f}\n".format(self.nis_a)
             )
             handle.write(
-                "[+] Percentage of charged NIS residues: {0:3.2f}\n".format(
-                    self.nis_c
-                )
+                "[+] Percentage of charged NIS residues: {0:3.2f}\n".format(self.nis_c)
             )
             handle.write(
                 "[++] Predicted binding "
@@ -319,112 +264,3 @@ class Prodigy:
         # close file handle if applicable
         if handle is not sys.stdout:
             handle.close()
-
-
-def main():
-    try:
-        import argparse
-        from argparse import RawTextHelpFormatter
-    except ImportError as err:
-        print(
-            "[!] The binding affinity prediction tools require Python 2.7+",
-            file=sys.stderr,
-        )
-        raise ImportError(err)
-
-    ap = argparse.ArgumentParser(
-        description=__doc__, formatter_class=RawTextHelpFormatter
-    )
-    ap.add_argument(
-        "structf", help="Structure to analyse in PDB or mmCIF format"
-    )
-    ap.add_argument(
-        "--distance-cutoff",
-        type=float,
-        default=5.5,
-        help="Distance cutoff to calculate ICs",
-    )
-    ap.add_argument(
-        "--acc-threshold",
-        type=float,
-        default=0.05,
-        help="Accessibility threshold for BSA analysis",
-    )
-    ap.add_argument(
-        "--temperature",
-        type=float,
-        default=25.0,
-        help="Temperature (C) for Kd prediction",
-    )
-    ap.add_argument(
-        "--contact_list", action="store_true", help="Output a list of contacts"
-    )
-    ap.add_argument(
-        "--pymol_selection",
-        action="store_true",
-        help="Output a script to highlight the interface (pymol)",
-    )
-    ap.add_argument(
-        "-q",
-        "--quiet",
-        action="store_true",
-        help="Outputs only the predicted affinity value",
-    )
-    _co_help = """
-    By default, all intermolecular contacts are taken into consideration,
-    a molecule being defined as an isolated group of amino acids sharing
-    a common chain identifier. In specific cases, for example
-    antibody-antigen complexes, some chains should be considered as a
-    single molecule.
-
-    Use the --selection option to provide collections of chains that should
-    be considered for the calculation. Separate by a space the chains that
-    are to be considered _different_ molecules. Use commas to include multiple
-    chains as part of a single group:
-
-    --selection A B => Contacts calculated (only) between chains A and B.
-    --selection A,B C => Contacts calculated (only) between \
-        chains A and C; and B and C.
-    --selection A B C => Contacts calculated (only) between \
-        chains A and B; B and C; and A and C.
-    """
-    sel_opt = ap.add_argument_group("Selection Options", description=_co_help)
-    sel_opt.add_argument("--selection", nargs="+", metavar=("A B", "A,B C"))
-
-    cmd = ap.parse_args()
-
-    # setup logging
-    log_level = logging.ERROR if cmd.quiet else logging.INFO
-    logging.basicConfig(
-        level=log_level, stream=sys.stdout, format="%(message)s"
-    )
-    logger = logging.getLogger("Prodigy")
-
-    struct_path = check_path(cmd.structf)
-
-    # Parse structure
-    structure, n_chains, n_res = parse_structure(struct_path)
-    logger.info(
-        "[+] Parsed structure file {0} ({1} chains, {2} residues)".format(
-            structure.id, n_chains, n_res
-        )
-    )
-    prodigy = Prodigy(structure, cmd.selection, cmd.temperature)
-    prodigy.predict(
-        distance_cutoff=cmd.distance_cutoff, acc_threshold=cmd.acc_threshold
-    )
-    prodigy.print_prediction(quiet=cmd.quiet)
-
-    # Print out interaction network
-    if cmd.contact_list:
-        fname = struct_path[:-4] + ".ic"
-        prodigy.print_contacts(fname)
-
-    # Print out interaction network
-    if cmd.pymol_selection:
-        fname = struct_path[:-4] + ".pml"
-        prodigy.print_pymol_script(fname)
-
-
-if __name__ == "__main__":
-    main()
