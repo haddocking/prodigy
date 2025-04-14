@@ -15,11 +15,12 @@ from os.path import basename, dirname, join, splitext
 from sys import stderr, version_info
 
 import numpy as np
-from Bio.PDB import PDBParser, Structure
+from Bio.PDB import Structure
+from Bio.PDB.PDBParser import PDBParser
 
-from prodigy_prot.freesasa_tools import stdchannel_redirected
-from prodigy_prot.parsers import validate_structure
-from prodigy_prot.prodigy import Prodigy
+from prodigy_prot.modules.freesasa_tools import stdchannel_redirected
+from prodigy_prot.modules.parsers import validate_structure
+from prodigy_prot.modules.prodigy import Prodigy
 
 
 def get_data_path(path):
