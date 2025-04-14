@@ -1,10 +1,10 @@
-[tool.poetry]
+[project]
 name = "prodigy-prot"
 license = "Apache-2.0"
 version = "2.2.5"
 description = "PROtein binDIng enerGY prediction"
 authors = [
-  "Computational Structural Biology Group at Utrecht University <prodigy.bonvinlab@gmail.com>",
+{name = "BonvinLab", email = "bonvinlab.support@uu.nl"}
 ]
 readme = "README.md"
 classifiers = [
@@ -14,35 +14,30 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Topic :: Scientific/Engineering :: Chemistry",
   "Topic :: Scientific/Engineering :: Bio-Informatics",
 ]
 
-[tool.poetry.dependencies]
-python = "^3.9"
-biopython = "^1.80"
-freesasa = "2.2.1"
-numpy = "^2"
+dependencies =[
+  "biopython>=1.80",
+  "freesasa>=2.2.1",
+  "numpy>=2"
+]
 
-[tool.poetry.group.test.dependencies]
-pytest = "^8.1.1"
-coverage = "^7.4.4"
-pytest-cov = "^5.0.0"
-hypothesis = "^6.100.1"
+[project.optional-dependencies]
+dev = [
+  "pytest","coverage", "hypothesis","pytest-cov"
+]
 
-[tool.poetry.scripts]
+[project.scripts]
 prodigy = "prodigy_prot.predict_IC:main"
-
-[tool.black]
-line-length = 79
 
 [tool.setuptools]
 include-package-data = true
 packages = ["src"]
 
-[tool.pytest.ini_options]
-pythonpath = ["src"]
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
