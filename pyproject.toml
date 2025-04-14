@@ -28,6 +28,9 @@ prodigy = "prodigy_prot.predict_IC:main"
 include-package-data = true
 packages = ["src"]
 
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
