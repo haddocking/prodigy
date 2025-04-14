@@ -6,7 +6,7 @@ import math
 import os
 
 
-def check_path(path):
+def check_path(path: str) -> str:
     """
     Checks if a file is readable.
     """
@@ -17,7 +17,7 @@ def check_path(path):
     return full_path
 
 
-def dg_to_kd(dg, temperature=25.0):
+def dg_to_kd(dg: float, temperature: float = 25.0) -> float:
     """Coversion of DG into the dissociation constant kd"""
 
     temp_in_k = temperature + 273.15
