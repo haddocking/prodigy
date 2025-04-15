@@ -41,6 +41,7 @@ def calculate_ic(
     if not ic_list:
         raise ValueError("No contacts found for selection")
 
+    ic_list.sort()
     return ic_list
 
 
@@ -61,12 +62,11 @@ def analyse_contacts(contact_list: list) -> dict[str, float]:
 
     _data = aa_properties.aa_character_ic
     for res_i, res_j in contact_list:
-        contact: tuple[str, str] = (
-            _data.get(res_i.resname, ""),
-            _data.get(res_j.resname, ""),
-        )
-        contact_type = "".join(sorted(contact))
-        bins[contact_type] += 1
+        i = _data.get(res_i.resname)
+        j = _data.get(res_j.resname)
+        if i is not None and j is not None:
+            contact_type = "".join(sorted((i, j)))
+            bins[contact_type] += 1
 
     return bins
 
@@ -86,7 +86,7 @@ def analyse_nis(sasa_dict: dict, acc_threshold: float = 0.05) -> list[float]:
     count = [0, 0, 0]
 
     for res, rsa in sasa_dict.items():
-        chain, resn, resi = res
+        _, resn, _ = res
         if rsa >= acc_threshold:
             aa_character = _data[resn]
             aa_index = _char_to_index(aa_character)
@@ -113,7 +113,15 @@ class Prodigy:
             self.selection = selection
         self.structure = struct_obj
         self.ic_network: list = []
-        self.bins: dict[str, float] = {}
+        self.bins: dict[str, float] = {
+            "CC": 0.0,
+            "CP": 0.0,
+            "AC": 0.0,
+            "PP": 0.0,
+            "AP": 0.0,
+            "AA": 0.0,
+        }
+
         self.nis_a = 0.0
         self.nis_c = 0.0
         self.ba_val = 0.0
@@ -204,6 +212,7 @@ class Prodigy:
             handle.write(
                 "[+] No. of apolar-apolar contacts: {0}\n".format(self.bins["AA"])
             )
+
             handle.write(
                 "[+] Percentage of apolar NIS residues: {0:3.2f}\n".format(self.nis_a)
             )

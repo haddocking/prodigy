@@ -3,19 +3,33 @@ Functions to read PDB/mmCIF files
 """
 
 import logging
-import os
-from typing import Optional
+import sys
+import warnings
+from pathlib import Path
+from typing import Optional, Union
 
 from Bio.PDB.Chain import Chain
 from Bio.PDB.MMCIFParser import MMCIFParser
+from Bio.PDB.PDBExceptions import PDBConstructionWarning
 from Bio.PDB.PDBParser import PDBParser
 from Bio.PDB.Polypeptide import PPBuilder, is_aa
 from Bio.PDB.Structure import Structure
+
+warnings.filterwarnings("ignore", category=PDBConstructionWarning)
+log = logging.getLogger("Prodigy")
+
+
+def get_parser(input_f: Path) -> Union[PDBParser, MMCIFParser]:
+    if input_f.suffix == ".cif":
+        return MMCIFParser()
+    else:
+        return PDBParser()
 
 
 def validate_structure(
     s: Structure, selection: Optional[list[str]] = None, clean: bool = True
 ) -> Structure:
+
     # setup logging
     logger = logging.getLogger("Prodigy")
 
@@ -118,34 +132,35 @@ def validate_structure(
 
 
 def parse_structure(path: str) -> tuple[Structure, int, int]:
-    """
-    Parses a structure using Biopython's PDB/mmCIF Parser
-    Verifies the integrity of the structure (gaps) and its
-    suitability for the calculation (is it a complex?).
-    """
-    # setup logging
-    logger = logging.getLogger("Prodigy")
-    logger.info("[+] Reading structure file: {0}".format(path))
-    fname = os.path.basename(path)
-    sname = ".".join(fname.split(".")[:-1])
-    s_ext = fname.split(".")[-1]
+    """Return a validated `Structure`, number of chains and number of residues"""
 
-    _ext = {"pdb", "ent", "cif"}
-    if s_ext not in _ext:
-        raise IOError(
-            f"[!] Structure format '{s_ext}' is " "not supported. Use '.pdb' or '.cif'."
+    extension = Path(path).suffix
+    supported_extensions = [".pdb", ".cif", ".ent"]
+    if extension not in supported_extensions:
+        log.error(
+            f"[!] Structure format '{extension}' is "
+            "not supported. Use '.pdb' or '.cif'."
         )
+        sys.exit(1)
 
-    sparser = PDBParser(QUIET=1) if s_ext in {"pdb", "ent"} else MMCIFParser()
-
+    parser = get_parser(Path(path))
+    structure_name = Path(path).stem
+    structure_path = Path(path)
     try:
-        s = sparser.get_structure(sname, path)
-    except Exception as exeption:
-        logger.error("[!] Structure '{0}' could not be parsed".format(sname))
-        raise Exception(exeption)
+        original_structure = parser.get_structure(structure_name, structure_path)
+    except Exception as e:
+        log.exception(e)
+        sys.exit(1)
 
-    return (
-        validate_structure(s),
-        len(set([c.id for c in s.get_chains()])),
-        len(list(s.get_residues())),
-    )
+    assert isinstance(original_structure, Structure)
+
+    structure = validate_structure(original_structure)
+
+    # Get number of chains
+    number_of_chains = len(set([c.id for c in structure.get_chains()]))
+
+    # Get number of residues
+    number_of_residues = len(list(structure.get_residues()))
+
+    # structure, n_chains, n_res = parse_structure(path=str(struct_path))
+    return (structure, number_of_chains, number_of_residues)
