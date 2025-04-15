@@ -22,9 +22,21 @@ jobs:
       - name: check types
         run: mypy .
 
-      - name: run tests
+      - name: run unittests
         run: >-
-          pytest --cov
+          pytest 
+          -m "not integration"
+          --cov
+          --cov-report xml:coverage.xml
+          --cov-append
+          -vv
+          --hypothesis-show-statistics
+
+      - name: run integration tests
+        run: >-
+          pytest 
+          -m integration
+          --cov
           --cov-report xml:coverage.xml
           --cov-append
           -vv
