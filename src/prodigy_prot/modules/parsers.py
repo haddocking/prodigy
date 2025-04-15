@@ -11,6 +11,11 @@ from Bio.PDB.MMCIFParser import MMCIFParser
 from Bio.PDB.PDBParser import PDBParser
 from Bio.PDB.Polypeptide import PPBuilder, is_aa
 from Bio.PDB.Structure import Structure
+from pathlib import Path
+
+import sys
+
+log = logging.getLogger("Prodigy")
 
 
 def validate_structure(
@@ -118,34 +123,39 @@ def validate_structure(
 
 
 def parse_structure(path: str) -> tuple[Structure, int, int]:
-    """
-    Parses a structure using Biopython's PDB/mmCIF Parser
-    Verifies the integrity of the structure (gaps) and its
-    suitability for the calculation (is it a complex?).
-    """
-    # setup logging
-    logger = logging.getLogger("Prodigy")
-    logger.info("[+] Reading structure file: {0}".format(path))
-    fname = os.path.basename(path)
-    sname = ".".join(fname.split(".")[:-1])
-    s_ext = fname.split(".")[-1]
+    """Return a validated `Structure`, number of chains and number of residues"""
 
-    _ext = {"pdb", "ent", "cif"}
-    if s_ext not in _ext:
-        raise IOError(
-            f"[!] Structure format '{s_ext}' is " "not supported. Use '.pdb' or '.cif'."
+    extension = Path(path).suffix
+    supported_extensions = [".pdb", ".cif", ".ent"]
+    if extension not in supported_extensions:
+        log.error(
+            f"[!] Structure format '{extension}' is "
+            "not supported. Use '.pdb' or '.cif'."
         )
+        sys.exit(1)
 
-    sparser = PDBParser(QUIET=1) if s_ext in {"pdb", "ent"} else MMCIFParser()
+    if extension == ".cif":
+        parser = MMCIFParser()
+    else:
+        parser = PDBParser()
 
+    structure_name = Path(path).stem
+    structure_path = Path(path)
     try:
-        s = sparser.get_structure(sname, path)
-    except Exception as exeption:
-        logger.error("[!] Structure '{0}' could not be parsed".format(sname))
-        raise Exception(exeption)
+        structure = parser.get_structure(structure_name, structure_path)
+    except Exception as e:
+        log.exception(e)
+        sys.exit(1)
 
-    return (
-        validate_structure(s),
-        len(set([c.id for c in s.get_chains()])),
-        len(list(s.get_residues())),
-    )
+    assert isinstance(structure, Structure)
+
+    # Validate the structure
+    validated_structure = validate_structure(structure)
+
+    # Get number of chains
+    number_of_chains = len(set([c.id for c in validated_structure.get_chains()]))
+
+    # Get number of residues
+    number_of_residues = len(list(validated_structure.get_residues()))
+
+    return (validated_structure, number_of_chains, number_of_residues)
