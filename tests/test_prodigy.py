@@ -78,9 +78,9 @@ def test_analyse_contacts(input_pdb_structure):
     res_b = input_pdb_structure[0]["B"][(" ", 6, " ")]
     contact = (res_a, res_b)
 
-    input = [contact]
+    test_input = [contact]
 
-    result = analyse_contacts(input)
+    result = analyse_contacts(test_input)
 
     expected_output = {
         "AA": 0.0,
@@ -96,8 +96,8 @@ def test_analyse_contacts(input_pdb_structure):
 
 def test_analyse_nis():
 
-    input = {("B", "ARG", "72"): 0.9}
-    apolar, polar, charged = analyse_nis(input)
+    test_input = {("B", "ARG", "72"): 0.9}
+    apolar, polar, charged = analyse_nis(test_input)
 
     assert apolar == 0.0
     assert polar == 100.0
