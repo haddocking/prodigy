@@ -32,7 +32,7 @@ def test_get_parser_cif(input_structure_cif):
     assert isinstance(parser, MMCIFParser)
 
 
-def test_validate_stucture_pdb(input_structure_pdb):
+def test_validate_structure_pdb(input_structure_pdb):
 
     parser = PDBParser()
     structure = parser.get_structure("test_structure", input_structure_pdb)
