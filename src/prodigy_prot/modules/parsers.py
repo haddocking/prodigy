@@ -4,21 +4,32 @@ Functions to read PDB/mmCIF files
 
 import logging
 import sys
+import warnings
 from pathlib import Path
 from typing import Optional, Union
 
 from Bio.PDB.Chain import Chain
 from Bio.PDB.MMCIFParser import MMCIFParser
+from Bio.PDB.PDBExceptions import PDBConstructionWarning
 from Bio.PDB.PDBParser import PDBParser
 from Bio.PDB.Polypeptide import PPBuilder, is_aa
 from Bio.PDB.Structure import Structure
 
+warnings.filterwarnings("ignore", category=PDBConstructionWarning)
 log = logging.getLogger("Prodigy")
+
+
+def get_parser(input_f: Path) -> Union[PDBParser, MMCIFParser]:
+    if input_f.suffix == ".cif":
+        return MMCIFParser()
+    else:
+        return PDBParser()
 
 
 def validate_structure(
     s: Structure, selection: Optional[list[str]] = None, clean: bool = True
 ) -> Structure:
+
     # setup logging
     logger = logging.getLogger("Prodigy")
 
@@ -132,29 +143,24 @@ def parse_structure(path: str) -> tuple[Structure, int, int]:
         )
         sys.exit(1)
 
-    parser: Union[MMCIFParser, PDBParser]
-    if extension == ".cif":
-        parser = MMCIFParser()
-    else:
-        parser = PDBParser()
-
+    parser = get_parser(Path(path))
     structure_name = Path(path).stem
     structure_path = Path(path)
     try:
-        structure = parser.get_structure(structure_name, structure_path)
+        original_structure = parser.get_structure(structure_name, structure_path)
     except Exception as e:
         log.exception(e)
         sys.exit(1)
 
-    assert isinstance(structure, Structure)
+    assert isinstance(original_structure, Structure)
 
-    # Validate the structure
-    validated_structure = validate_structure(structure)
+    structure = validate_structure(original_structure)
 
     # Get number of chains
-    number_of_chains = len(set([c.id for c in validated_structure.get_chains()]))
+    number_of_chains = len(set([c.id for c in structure.get_chains()]))
 
     # Get number of residues
-    number_of_residues = len(list(validated_structure.get_residues()))
+    number_of_residues = len(list(structure.get_residues()))
 
-    return (validated_structure, number_of_chains, number_of_residues)
+    # structure, n_chains, n_res = parse_structure(path=str(struct_path))
+    return (structure, number_of_chains, number_of_residues)
