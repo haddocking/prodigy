@@ -38,10 +38,6 @@ Or in a directory containing multiple molecules:
 prodigy <directory_with_molecules>
 ```
 
-```
-
-```
-
 To get a list of all the possible options.
 
 ```bash
