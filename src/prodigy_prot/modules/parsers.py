@@ -3,17 +3,15 @@ Functions to read PDB/mmCIF files
 """
 
 import logging
-import os
-from typing import Optional
+import sys
+from pathlib import Path
+from typing import Optional, Union
 
 from Bio.PDB.Chain import Chain
 from Bio.PDB.MMCIFParser import MMCIFParser
 from Bio.PDB.PDBParser import PDBParser
 from Bio.PDB.Polypeptide import PPBuilder, is_aa
 from Bio.PDB.Structure import Structure
-from pathlib import Path
-
-import sys
 
 log = logging.getLogger("Prodigy")
 
@@ -134,6 +132,7 @@ def parse_structure(path: str) -> tuple[Structure, int, int]:
         )
         sys.exit(1)
 
+    parser: Union[MMCIFParser, PDBParser]
     if extension == ".cif":
         parser = MMCIFParser()
     else:
