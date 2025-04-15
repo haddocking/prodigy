@@ -1,7 +1,7 @@
 [project]
 name = "prodigy-prot"
 license = "Apache-2.0"
-version = "2.2.5"
+version = "2.3.0"
 description = "PROtein binDIng enerGY prediction"
 authors = [
   { name = "Anna Vangone" },
