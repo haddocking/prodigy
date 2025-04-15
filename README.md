@@ -1,4 +1,4 @@
-# PRODIGY / Binding Affinity Prediction 
+# PRODIGY / Binding Affinity Prediction
 
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/prodigy-prot)
 ![PyPI - Version](https://img.shields.io/pypi/v/prodigy-prot)
@@ -12,7 +12,7 @@
 [![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8F-green)](https://fair-software.eu)
 [![SQAaaS badge shields.io](https://img.shields.io/badge/sqaaas%20software-gold-yellow)](https://api.eu.badgr.io/public/assertions/w8HcpcH4Svi3-UZ93LHHMA "SQAaaS gold badge achieved")
 
-* * *
+---
 
 PRODIGY is also available as a web service @ [wenmr.science.uu.nl/prodigy](https://wenmr.science.uu.nl/prodigy/)
 
@@ -26,26 +26,38 @@ If you want to develop PRODIGY, check [DEVELOPMENT](DEVELOPMENT.md) for more det
 
 ## Usage
 
+You can run `prodigy` either on a single structure:
+
 ```bash
-prodigy <pdb file> [--selection <chain1><chain2>]
+prodigy <structure_file>
+```
+
+Or in a directory containing multiple molecules:
+
+```bash
+prodigy <directory_with_molecules>
+```
+
+```
+
 ```
 
 To get a list of all the possible options.
 
 ```bash
-$ prodigy --help
-usage: prodigy [-h] [--distance-cutoff DISTANCE_CUTOFF] [--acc-threshold ACC_THRESHOLD] [--temperature TEMPERATURE]
-               [--contact_list] [--pymol_selection] [-q] [-V] [--selection A B [A,B C ...]]
-               structf
+
+$ prodigy -h
+usage: prodigy [-h] [--distance-cutoff DISTANCE_CUTOFF] [--acc-threshold ACC_THRESHOLD]
+               [--temperature TEMPERATURE] [--contact_list] [--pymol_selection] [-q]
+               [--selection A B [A,B C ...]]
+               input_path
 
 Binding affinity predictor based on Intermolecular Contacts (ICs).
 
-Anna Vangone and Alexandre M.J.J. Bonvin,
-Contacts-based prediction of binding affinity in protein-protein complexes.
-eLife (2015)
-
 positional arguments:
-  structf               Structure to analyse in PDB or mmCIF format
+  input_path            Path to either:
+                        - Structure in PDB or mmCIF format
+                        - Directory containing structure files
 
 options:
   -h, --help            show this help message and exit
@@ -58,30 +70,28 @@ options:
   --contact_list        Output a list of contacts
   --pymol_selection     Output a script to highlight the interface (pymol)
   -q, --quiet           Outputs only the predicted affinity value
-  -V, --version         Print the version and exit.
 
 Selection Options:
 
-      By default, all intermolecular contacts are taken into consideration,
-      a molecule being defined as an isolated group of amino acids sharing
-      a common chain identifier. In specific cases, for example
-      antibody-antigen complexes, some chains should be considered as a
-      single molecule.
+  By default, all intermolecular contacts are taken into consideration,
+  a molecule being defined as an isolated group of amino acids sharing
+  a common chain identifier. In specific cases, for example
+  antibody-antigen complexes, some chains should be considered as a
+  single molecule.
 
-      Use the --selection option to provide collections of chains that should
-      be considered for the calculation. Separate by a space the chains that
-      are to be considered _different_ molecules. Use commas to include multiple
-      chains as part of a single group:
+  Use the --selection option to provide collections of chains that should
+  be considered for the calculation. Separate by a space the chains that
+  are to be considered _different_ molecules. Use commas to include multiple
+  chains as part of a single group:
 
-      --selection A B => Contacts calculated (only) between chains A and B.
-      --selection A,B C => Contacts calculated (only) between chains A and C; and B and C.
-      --selection A B C => Contacts calculated (only) between chains A and B; B and C; and A and C.
-
+  --selection A B => Contacts calculated (only) between chains A and B.
+  --selection A,B C => Contacts calculated (only) between     chains A and C; and B and C.
+  --selection A B C => Contacts calculated (only) between     chains A and B; B and C; and A and C.
 
   --selection A B [A,B C ...]
 ```
 
-## Example
+## Example single structure
 
 Download the PDB [3BZD](https://www.rcsb.org/structure/3bzd) and run PRODIGY on it.
 
@@ -104,6 +114,31 @@ $ prodigy 3bzd.pdb
 ```
 
 Details of the binding affinity predictor implemented in PRODIGY can be found at [10.7554/elife.07454](https://doi.org/10.7554/elife.07454)
+
+## Example multiple structures
+
+Create a directory that will hold your input molecules
+
+```bash
+mkdir input
+```
+
+Download some molecules, or copy then in this directory:
+
+```text
+curl -o input/3bzd.pdb https://files.rcsb.org/download/3BZD.pdb
+curl -o input/2oob.pdb https://files.rcsb.org/download/2OOB.pdb
+curl -o input/1ppe.pdb https://files.rcsb.org/download/1PPE.pdb
+```
+
+Run `prodigy` with the `quiet` option, so it is easier to parse the output later:
+
+```bash
+$ prodigy -q input/
+3bzd  -9.373
+2oob  -6.230
+1ppe -14.727
+```
 
 ## Citing us
 
