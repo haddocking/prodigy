@@ -5,7 +5,7 @@ from Bio.PDB.MMCIFParser import MMCIFParser
 from Bio.PDB.PDBParser import PDBParser
 from Bio.PDB.Structure import Structure
 
-from prodigy_prot.modules.parsers import parse_structure, validate_structure
+from prodigy_prot.modules.parsers import get_parser, parse_structure, validate_structure
 
 from . import TEST_DATA
 
@@ -18,6 +18,18 @@ def input_structure_cif():
 @pytest.fixture
 def input_structure_pdb() -> Path:
     return Path(TEST_DATA, "2oob.pdb")
+
+
+def test_get_parser_pdb(input_structure_pdb):
+
+    parser = get_parser(input_structure_pdb)
+    assert isinstance(parser, PDBParser)
+
+
+def test_get_parser_cif(input_structure_cif):
+
+    parser = get_parser(input_structure_cif)
+    assert isinstance(parser, MMCIFParser)
 
 
 def test_validate_stucture_pdb(input_structure_pdb):
