@@ -113,7 +113,7 @@ def test_prodigy_as_dict(prodigy_class):
     result = prodigy_class.as_dict()
 
     assert isinstance(result, dict)
-    assert len(result) == 8
+    assert len(result) == 14
 
 
 def test_prodigy_print_prediction(prodigy_class):
