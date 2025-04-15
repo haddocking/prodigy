@@ -123,7 +123,7 @@ Create a directory that will hold your input molecules
 mkdir input
 ```
 
-Download some molecules, or copy then in this directory:
+Download some molecules (or copy them into this directory):
 
 ```text
 curl -o input/3bzd.pdb https://files.rcsb.org/download/3BZD.pdb
