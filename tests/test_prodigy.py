@@ -4,7 +4,6 @@ import tempfile
 from io import BufferedReader, TextIOWrapper
 from os.path import basename, splitext
 from pathlib import Path
-from sys import version_info
 
 import pytest
 from Bio.PDB.PDBParser import PDBParser
@@ -201,8 +200,7 @@ def test_dataset_prediction(compressed_dataset_f, expected_dataset_json):
         handle = dataset.extractfile(entry)
 
         # Wrap filehandle to ensure string file handle in Python 3
-        if version_info[0] >= 3:
-            handle = TextIOWrapper(BufferedReader(handle))  # type: ignore
+        handle = TextIOWrapper(BufferedReader(handle))  # type: ignore
 
         parsed_structure = parser.get_structure(s_name, handle)
         assert isinstance(parsed_structure, Structure)
