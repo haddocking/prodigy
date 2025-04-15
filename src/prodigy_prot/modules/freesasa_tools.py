@@ -4,12 +4,14 @@ Functions to execute freesasa and parse its output.
 
 import os
 
+import freesasa
 from Bio.PDB.Structure import Structure
+from freesasa import Classifier, calc, structureFromBioPDB
 
 from prodigy_prot import NACCESS_CONFIG
 from prodigy_prot.modules.aa_properties import rel_asa
 
-from freesasa import Classifier, calc, structureFromBioPDB
+freesasa.setVerbosity(freesasa.nowarnings)
 
 
 def execute_freesasa_api(structure: Structure) -> tuple[dict, dict]:
