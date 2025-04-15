@@ -3,12 +3,13 @@ Functions to execute freesasa and parse its output.
 """
 
 import os
-import sys
 
 from Bio.PDB.Structure import Structure
 
 from prodigy_prot import NACCESS_CONFIG
 from prodigy_prot.modules.aa_properties import rel_asa
+
+from freesasa import Classifier, calc, structureFromBioPDB
 
 
 def execute_freesasa_api(structure: Structure) -> tuple[dict, dict]:
@@ -16,17 +17,6 @@ def execute_freesasa_api(structure: Structure) -> tuple[dict, dict]:
     Calls freesasa using its Python API and returns
     per-residue accessibilities.
     """
-    try:
-        from freesasa import Classifier, calc, structureFromBioPDB
-    except ImportError as err:
-        print(
-            (
-                "[!] The binding affinity prediction tools require the "
-                "'freesasa' Python API"
-            ),
-            file=sys.stderr,
-        )
-        raise ImportError(err)
 
     asa_data = {}
     rsa_data: dict[tuple[str, int, str], float] = {}

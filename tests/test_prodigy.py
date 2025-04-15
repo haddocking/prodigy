@@ -2,17 +2,15 @@ import json
 import tarfile
 import tempfile
 from io import BufferedReader, TextIOWrapper
-from os import devnull
 from os.path import basename, dirname, join, splitext
 from pathlib import Path
-from sys import stderr, version_info
+from sys import version_info
 
 import pytest
 from Bio.PDB.PDBParser import PDBParser
 from Bio.PDB.Residue import Residue
 from Bio.PDB.Structure import Structure
 
-from prodigy_prot.modules.freesasa_tools import stdchannel_redirected
 from prodigy_prot.modules.parsers import validate_structure
 from prodigy_prot.modules.prodigy import (
     Prodigy,
@@ -175,23 +173,6 @@ def test_print_pymol_script(input_pdb_structure, prodigy_class):
     Path(outfile.name).unlink()
 
 
-def get_data_path(path):
-    """
-    Get the path of a file in data for file input
-
-    Args:
-      path: path within data folder
-
-    Returns:
-        The path to the data file in unix notation
-    """
-    try:
-        return join(dirname(__file__), "..", "data", *path.split("/"))
-    except NameError:
-        #
-        return join("data", *path.split("/"))
-
-
 @pytest.mark.integration
 def test_dataset_prediction(compressed_dataset_f, expected_dataset_json):
     """
@@ -212,32 +193,34 @@ def test_dataset_prediction(compressed_dataset_f, expected_dataset_json):
     # run prodigy for each dataset in the PDB
     for entry in dataset:
         s_name, s_ext = splitext(basename(entry.name))
+
         # skip system files in archive
         if not s_name.isalnum() or s_ext != ".pdb":
             continue
-        # chains = expected_data[s_name]["Interacting_chains"]
+
         handle = dataset.extractfile(entry)
+
         # Wrap filehandle to ensure string file handle in Python 3
         if version_info[0] >= 3:
             handle = TextIOWrapper(BufferedReader(handle))  # type: ignore
-        # Suppress gap warnings when parsing structure
-        with stdchannel_redirected(stderr, devnull):
-            s = validate_structure(
-                parser.get_structure(s_name, handle), selection=["A", "B"]
-            )
+
+        parsed_structure = parser.get_structure(s_name, handle)
+        assert isinstance(parsed_structure, Structure)
+
+        s = validate_structure(parsed_structure, selection=["A", "B"])
+
         # Test for structure object
         assert isinstance(s, Structure)
-        # self.assertIsInstance(s, Structure.Structure)
-        # instantiate Prdigy object,
+
         #  run prediction and retrieve result dict
         prod = Prodigy(s, selection=["A", "B"])
         prod.predict()
         results = prod.as_dict()
+
         # check for equality of prdicted interface residues
         for k in keys_equal:
             observed_value = results[k]
             expected_value = expected_data[s_name][k]
-
             assert observed_value == pytest.approx(expected_value)
 
         # check that NIS and binding afinity values are within 2% of
@@ -245,6 +228,5 @@ def test_dataset_prediction(compressed_dataset_f, expected_dataset_json):
         for k in diffs.keys():
             delta = abs(results[k] / expected_data[s_name][k] - 1)
             # assume a difference of less then 2%
-            # self.assertAlmostEqual(delta, 0, delta=0.02)
             assert delta == pytest.approx(0, abs=0.02)
             diffs[k].append(delta)
