@@ -1,26 +1,170 @@
-# !/usr/bin/env python
-
-"""
-Run the prodigy tests.
-"""
-
-from __future__ import division, print_function
-
 import json
 import tarfile
+import tempfile
 import unittest
 from io import BufferedReader, TextIOWrapper
 from os import devnull
 from os.path import basename, dirname, join, splitext
+from pathlib import Path
 from sys import stderr, version_info
 
 import numpy as np
+import pytest
 from Bio.PDB import Structure
 from Bio.PDB.PDBParser import PDBParser
+from Bio.PDB.Residue import Residue
 
 from prodigy_prot.modules.freesasa_tools import stdchannel_redirected
 from prodigy_prot.modules.parsers import validate_structure
-from prodigy_prot.modules.prodigy import Prodigy
+from prodigy_prot.modules.prodigy import (
+    Prodigy,
+    analyse_contacts,
+    analyse_nis,
+    calculate_ic,
+)
+
+from . import TEST_DATA
+
+
+@pytest.fixture
+def input_pdb_structure():
+    input_f = Path(TEST_DATA, "2oob.pdb")
+    parser = PDBParser()
+    return parser.get_structure(input_f.stem, input_f)
+
+
+def test_calculate_ic(input_pdb_structure):
+
+    result = calculate_ic(struct=input_pdb_structure, d_cutoff=5.5)
+
+    assert len(result) == 78
+
+    first_hit: tuple[Residue, Residue] = result[0]
+
+    assert first_hit[0].get_resname() == "ASN"
+    assert first_hit[1].get_resname() == "LYS"
+
+
+def test_calculate_ic_with_selection(input_pdb_structure):
+
+    result = calculate_ic(
+        struct=input_pdb_structure, d_cutoff=5.5, selection={"A": 0, "B": 1}
+    )
+
+    assert len(result) == 78
+
+    first_hit: tuple[Residue, Residue] = result[0]
+
+    assert first_hit[0].get_resname() == "ASN"
+    assert first_hit[1].get_resname() == "LYS"
+
+
+def test_analyse_contacts(input_pdb_structure):
+
+    res_a = input_pdb_structure[0]["A"][(" ", 931, " ")]
+    res_b = input_pdb_structure[0]["B"][(" ", 6, " ")]
+    contact = (res_a, res_b)
+
+    input = [contact]
+
+    result = analyse_contacts(input)
+
+    expected_output = {
+        "AA": 0.0,
+        "PP": 0.0,
+        "CC": 0.0,
+        "AP": 0.0,
+        "CP": 1.0,
+        "AC": 0.0,
+    }
+
+    assert result == expected_output
+
+
+def test_analyse_nis():
+
+    input = {("B", "ARG", "72"): 0.9}
+    apolar, polar, charged = analyse_nis(input)
+
+    assert apolar == 0.0
+    assert polar == 100.0
+    assert charged == 0.0
+
+
+@pytest.fixture
+def prodigy_class(input_pdb_structure):
+    yield Prodigy(struct_obj=input_pdb_structure)
+
+
+def test_prodigy_predict(prodigy_class):
+
+    prodigy_class.predict()
+
+    assert prodigy_class.nis_a == pytest.approx(35.5, abs=1.0)
+    assert prodigy_class.nis_c == pytest.approx(38.0, abs=1.0)
+    assert prodigy_class.ba_val == pytest.approx(-6.2, abs=1.0)
+
+    # This is the actual prediction
+    assert prodigy_class.kd_val == pytest.approx(2.7e-5, abs=1e-6)
+
+
+def test_prodigy_as_dict(prodigy_class):
+
+    result = prodigy_class.as_dict()
+
+    assert isinstance(result, dict)
+    assert len(result) == 8
+
+
+def test_prodigy_print_prediction(prodigy_class):
+
+    outfile = tempfile.NamedTemporaryFile(delete=False)
+    assert Path(outfile.name).stat().st_size == 0
+
+    prodigy_class.print_prediction(outfile.name)
+    assert Path(outfile.name).stat().st_size != 0
+
+    Path(outfile.name).unlink()
+
+
+def test_prodigy_print_prediction_quiet(prodigy_class):
+
+    outfile = tempfile.NamedTemporaryFile(delete=False)
+    assert Path(outfile.name).stat().st_size == 0
+
+    prodigy_class.print_prediction(outfile.name, True)
+    assert Path(outfile.name).stat().st_size != 0
+
+    Path(outfile.name).unlink()
+
+
+def test_prodigy_print_contacts(input_pdb_structure, prodigy_class):
+
+    res_a = input_pdb_structure[0]["A"][(" ", 931, " ")]
+    res_b = input_pdb_structure[0]["B"][(" ", 6, " ")]
+    prodigy_class.ic_network = [(res_a, res_b)]
+
+    outfile = tempfile.NamedTemporaryFile(delete=False)
+    assert Path(outfile.name).stat().st_size == 0
+
+    prodigy_class.print_contacts(outfile.name)
+    assert Path(outfile.name).stat().st_size != 0
+
+    Path(outfile.name).unlink()
+
+
+def test_print_pymol_script(input_pdb_structure, prodigy_class):
+    res_a = input_pdb_structure[0]["A"][(" ", 931, " ")]
+    res_b = input_pdb_structure[0]["B"][(" ", 6, " ")]
+    prodigy_class.ic_network = [(res_a, res_b)]
+
+    outfile = tempfile.NamedTemporaryFile(delete=False)
+    assert Path(outfile.name).stat().st_size == 0
+
+    prodigy_class.print_pymol_script(outfile.name)
+    assert Path(outfile.name).stat().st_size != 0
+
+    Path(outfile.name).unlink()
 
 
 def get_data_path(path):
@@ -40,6 +184,7 @@ def get_data_path(path):
         return join("data", *path.split("/"))
 
 
+# Older integration test
 class ProdigyOutputTest(unittest.TestCase):
     def test_dataset(self):
         """
@@ -98,5 +243,6 @@ class ProdigyOutputTest(unittest.TestCase):
             print("  {} mean: {:.2%}".format(k, np.mean(diffs[k])))
 
 
-if __name__ == "__main__":
-    unittest.main()
+#
+# if __name__ == "__main__":
+#     unittest.main()
