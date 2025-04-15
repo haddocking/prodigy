@@ -2,7 +2,7 @@ import json
 import tarfile
 import tempfile
 from io import BufferedReader, TextIOWrapper
-from os.path import basename, dirname, join, splitext
+from os.path import basename, splitext
 from pathlib import Path
 from sys import version_info
 
