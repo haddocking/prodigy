@@ -53,15 +53,15 @@ aa_character_protorp: dict[str, str] = {
 # Y for hydrophiLic
 aa_character_hydro: dict[str, str] = {
     "ALA": "B",
-    "CYS": "B", 
+    "CYS": "L", #?
     "GLU": "L",
     "ASP": "L",
-    "GLY": "L",
+    "GLY": "B",
     "PHE": "B",
     "ILE": "B",
     "HIS": "L",
     "LYS": "L",
-    "MET": "L",
+    "MET": "B",
     "LEU": "B",
     "ASN": "L",
     "GLN": "L",
