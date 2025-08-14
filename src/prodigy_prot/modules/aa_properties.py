@@ -49,6 +49,31 @@ aa_character_protorp: dict[str, str] = {
     "TYR": "P",
 }
 
+# B for hydrophoBic
+# Y for hydrophiLic
+aa_character_hydro: dict[str, str] = {
+    "ALA": "B",
+    "CYS": "B", 
+    "GLU": "L",
+    "ASP": "L",
+    "GLY": "L",
+    "PHE": "B",
+    "ILE": "B",
+    "HIS": "L",
+    "LYS": "L",
+    "MET": "L",
+    "LEU": "B",
+    "ASN": "L",
+    "GLN": "L",
+    "PRO": "B",
+    "SER": "L",
+    "ARG": "L",
+    "THR": "L",
+    "TRP": "L",
+    "VAL": "B",
+    "TYR": "L",
+}
+
 # Scaling factors for relative ASA
 # Calculated using extended ALA-X-ALA peptides
 # Taken from NACCESS

@@ -58,9 +58,20 @@ def analyse_contacts(contact_list: list) -> dict[str, float]:
         "AP": 0.0,
         "CP": 0.0,
         "AC": 0.0,
+        "LL": 0.0,
+        "BL": 0.0,
+        "BB": 0.0 
     }
 
     _data = aa_properties.aa_character_ic
+    for res_i, res_j in contact_list:
+        i = _data.get(res_i.resname)
+        j = _data.get(res_j.resname)
+        if i is not None and j is not None:
+            contact_type = "".join(sorted((i, j)))
+            bins[contact_type] += 1
+
+    _data = aa_properties.aa_character_hydro
     for res_i, res_j in contact_list:
         i = _data.get(res_i.resname)
         j = _data.get(res_j.resname)
@@ -94,7 +105,8 @@ def analyse_nis(sasa_dict: dict, acc_threshold: float = 0.05) -> list[float]:
             count[aa_index] += 1
 
     percentages = [100.0 * x / sum(count) for x in count]
-    # print('[+] No. of buried interface residues: {0}'.format(sum(count)))
+    #print('fraction of hydrophobic buried could be a feature, but probably better do actual BSA')
+    #print('[+] No. of buried interface residues: {0}'.format(sum(count)))
     return percentages
 
 
@@ -120,10 +132,14 @@ class Prodigy:
             "PP": 0.0,
             "AP": 0.0,
             "AA": 0.0,
+            "LL": 0.0,
+            "BL": 0.0,
+            "BB": 0.0
         }
 
         self.nis_a = 0.0
         self.nis_c = 0.0
+        self.nis_p = 0.0
         self.ba_val = 0.0
         self.kd_val = 0.0
 
@@ -149,12 +165,13 @@ class Prodigy:
         self.ic_network = calculate_ic(
             self.structure, d_cutoff=distance_cutoff, selection=selection_dict
         )
-
+        
         self.bins = analyse_contacts(self.ic_network)
+        print(self.bins)
 
         # SASA
         _, cmplx_sasa = execute_freesasa_api(self.structure)
-        self.nis_a, self.nis_c, _ = analyse_nis(cmplx_sasa, acc_threshold=acc_threshold)
+        self.nis_a, self.nis_c, self.nis_p = analyse_nis(cmplx_sasa, acc_threshold=acc_threshold)
 
         # Affinity Calculation
         self.ba_val = IC_NIS(
@@ -175,6 +192,7 @@ class Prodigy:
             "ICs": len(self.ic_network),
             "nis_a": self.nis_a,
             "nis_c": self.nis_c,
+            "nis_p": self.nis_p,
             "ba_val": self.ba_val,
             "kd_val": self.kd_val,
         }
@@ -212,7 +230,20 @@ class Prodigy:
             handle.write(
                 "[+] No. of apolar-apolar contacts: {0}\n".format(self.bins["AA"])
             )
-
+            
+            handle.write(
+                "[+] No. of hydrophilic-hydrophilic contacts: {0}\n".format(self.bins["LL"])
+            )
+            handle.write(
+                "[+] No. of hydrophobic-hydrophilic contacts: {0}\n".format(self.bins["BL"])
+            )
+            handle.write(
+                "[+] No. of hydrophobic-hydrophobic contacts: {0}\n".format(self.bins["BB"])
+            )
+            
+            handle.write(
+                "[+] Percentage of polar NIS residues: {0:3.2f}\n".format(self.nis_p)
+            )
             handle.write(
                 "[+] Percentage of apolar NIS residues: {0:3.2f}\n".format(self.nis_a)
             )
