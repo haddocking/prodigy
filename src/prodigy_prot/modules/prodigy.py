@@ -213,49 +213,49 @@ class Prodigy:
                 "[+] No. of intermolecular contacts: {0}\n".format(len(self.ic_network))
             )
             handle.write(
-                "[+] No. of charged-charged contacts: {0}\n".format(self.bins["CC"])
+                "[+] No. of Charged-Charged contacts: {0}\n".format(self.bins["CC"])
             )
             handle.write(
-                "[+] No. of charged-polar contacts: {0}\n".format(self.bins["CP"])
+                "[+] No. of Charged-Polar contacts: {0}\n".format(self.bins["CP"])
             )
             handle.write(
-                "[+] No. of charged-apolar contacts: {0}\n".format(self.bins["AC"])
+                "[+] No. of Charged-Apolar contacts: {0}\n".format(self.bins["AC"])
             )
             handle.write(
-                "[+] No. of polar-polar contacts: {0}\n".format(self.bins["PP"])
+                "[+] No. of Polar-Polar contacts: {0}\n".format(self.bins["PP"])
             )
             handle.write(
-                "[+] No. of apolar-polar contacts: {0}\n".format(self.bins["AP"])
+                "[+] No. of Apolar-Polar contacts: {0}\n".format(self.bins["AP"])
             )
             handle.write(
-                "[+] No. of apolar-apolar contacts: {0}\n".format(self.bins["AA"])
-            )
-            
-            handle.write(
-                "[+] No. of hydrophilic-hydrophilic contacts: {0}\n".format(self.bins["LL"])
-            )
-            handle.write(
-                "[+] No. of hydrophobic-hydrophilic contacts: {0}\n".format(self.bins["BL"])
-            )
-            handle.write(
-                "[+] No. of hydrophobic-hydrophobic contacts: {0}\n".format(self.bins["BB"])
+                "[+] No. of Apolar-Apolar contacts: {0}\n".format(self.bins["AA"])
             )
             
             handle.write(
-                "[+] Percentage of polar NIS residues: {0:3.2f}\n".format(self.nis_p)
+                "[+] No. of hydrophiLic-hydrophiLic contacts: {0}\n".format(self.bins["LL"])
             )
             handle.write(
-                "[+] Percentage of apolar NIS residues: {0:3.2f}\n".format(self.nis_a)
+                "[+] No. of hydrophoBic-hydrophiLic contacts: {0}\n".format(self.bins["BL"])
             )
             handle.write(
-                "[+] Percentage of charged NIS residues: {0:3.2f}\n".format(self.nis_c)
+                "[+] No. of hydrophoBic-hydrophoBic contacts: {0}\n".format(self.bins["BB"])
+            )
+            
+            handle.write(
+                "[+] Percentage of Polar NIS residues: {0:3.2f}\n".format(self.nis_p)
             )
             handle.write(
-                "[++] Predicted binding "
+                "[+] Percentage of Apolar NIS residues: {0:3.2f}\n".format(self.nis_a)
+            )
+            handle.write(
+                "[+] Percentage of Charged NIS residues: {0:3.2f}\n".format(self.nis_c)
+            )
+            handle.write(
+                "[++] predicted binding "
                 "affinity (kcal.mol-1): {0:8.1f}\n".format(self.ba_val)
             )
             handle.write(
-                "[++] Predicted dissociation constant (M) at {:.1f}˚C:"
+                "[++] predicted dissociation constant (M) at {:.1f}˚C:"
                 " {:8.1e}\n".format(self.temp, self.kd_val)
             )
 

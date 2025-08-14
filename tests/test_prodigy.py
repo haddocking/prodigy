@@ -86,8 +86,11 @@ def test_analyse_contacts(input_pdb_structure):
         "AP": 0.0,
         "CP": 1.0,
         "AC": 0.0,
+        "LL": 1.0,
+        "BL": 0.0,
+        "BB": 0.0
     }
-
+    
     assert result == expected_output
 
 
@@ -118,7 +121,8 @@ def test_prodigy_as_dict(prodigy_class):
     result = prodigy_class.as_dict()
 
     assert isinstance(result, dict)
-    assert len(result) == 14
+    # 14 'original' + 3 hydro + 1 %NIS
+    assert len(result) == 18
 
 
 def test_prodigy_print_prediction(prodigy_class):
