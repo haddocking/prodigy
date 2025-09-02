@@ -49,6 +49,32 @@ aa_character_protorp: dict[str, str] = {
     "TYR": "P",
 }
 
+# Taken from pre-original prodigy code
+# B for hydrophoBic
+# Y for hydrophiLic
+aa_character_hydro: dict[str, str] = {
+    "ALA": "B", #+
+    "CYS": "B", #+
+    "GLU": "L", #+
+    "ASP": "L", #+
+    "GLY": "L", # Glycine was B in my initial classification
+    "PHE": "B", #+
+    "ILE": "B", #+
+    "HIS": "L", #+
+    "LYS": "L", #+
+    "MET": "B", #+
+    "LEU": "B", #+
+    "ASN": "L", #+
+    "GLN": "L", #+
+    "PRO": "L", # Proline was B my initial classification
+    "SER": "L", #+
+    "ARG": "L", #+
+    "THR": "L", #+
+    "TRP": "L", #+
+    "VAL": "B", #+
+    "TYR": "L", #+
+}
+
 # Scaling factors for relative ASA
 # Calculated using extended ALA-X-ALA peptides
 # Taken from NACCESS
