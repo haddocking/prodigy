@@ -6,6 +6,7 @@ from os.path import basename, splitext
 from pathlib import Path
 
 import pytest
+from Bio.PDB.Model import Model
 from Bio.PDB.PDBParser import PDBParser
 from Bio.PDB.Residue import Residue
 from Bio.PDB.Structure import Structure
@@ -22,10 +23,12 @@ from . import TEST_DATA
 
 
 @pytest.fixture
-def input_pdb_structure():
+def input_model():
     input_f = Path(TEST_DATA, "2oob.pdb")
     parser = PDBParser()
-    return parser.get_structure(input_f.stem, input_f)
+    structure = parser.get_structure(input_f.stem, input_f)
+    assert isinstance(structure, Structure)
+    return structure.child_list[0]
 
 
 @pytest.fixture
@@ -39,27 +42,13 @@ def expected_dataset_json():
 
 
 @pytest.fixture
-def prodigy_class(input_pdb_structure):
-    yield Prodigy(struct_obj=input_pdb_structure)
+def prodigy_class(input_model):
+    yield Prodigy(input_model)
 
 
-def test_calculate_ic(input_pdb_structure):
+def test_calculate_ic(input_model):
 
-    result = calculate_ic(struct=input_pdb_structure, d_cutoff=5.5)
-
-    assert len(result) == 78
-
-    first_hit: tuple[Residue, Residue] = result[0]
-
-    assert first_hit[0].get_resname() == "ASN"
-    assert first_hit[1].get_resname() == "LYS"
-
-
-def test_calculate_ic_with_selection(input_pdb_structure):
-
-    result = calculate_ic(
-        struct=input_pdb_structure, d_cutoff=5.5, selection={"A": 0, "B": 1}
-    )
+    result = calculate_ic(model=input_model, d_cutoff=5.5)
 
     assert len(result) == 78
 
@@ -69,10 +58,22 @@ def test_calculate_ic_with_selection(input_pdb_structure):
     assert first_hit[1].get_resname() == "LYS"
 
 
-def test_analyse_contacts(input_pdb_structure):
+def test_calculate_ic_with_selection(input_model):
 
-    res_a = input_pdb_structure[0]["A"][(" ", 931, " ")]
-    res_b = input_pdb_structure[0]["B"][(" ", 6, " ")]
+    result = calculate_ic(model=input_model, d_cutoff=5.5, selection={"A": 0, "B": 1})
+
+    assert len(result) == 78
+
+    first_hit: tuple[Residue, Residue] = result[0]
+
+    assert first_hit[0].get_resname() == "ASN"
+    assert first_hit[1].get_resname() == "LYS"
+
+
+def test_analyse_contacts(input_model):
+
+    res_a = input_model["A"][(" ", 931, " ")]
+    res_b = input_model["B"][(" ", 6, " ")]
     contact = (res_a, res_b)
 
     test_input = [contact]
@@ -147,10 +148,10 @@ def test_prodigy_print_prediction_quiet(prodigy_class):
     Path(outfile.name).unlink()
 
 
-def test_prodigy_print_contacts(input_pdb_structure, prodigy_class):
+def test_prodigy_print_contacts(input_model, prodigy_class):
 
-    res_a = input_pdb_structure[0]["A"][(" ", 931, " ")]
-    res_b = input_pdb_structure[0]["B"][(" ", 6, " ")]
+    res_a = input_model["A"][(" ", 931, " ")]
+    res_b = input_model["B"][(" ", 6, " ")]
     prodigy_class.ic_network = [(res_a, res_b)]
 
     outfile = tempfile.NamedTemporaryFile(delete=False)
@@ -162,9 +163,9 @@ def test_prodigy_print_contacts(input_pdb_structure, prodigy_class):
     Path(outfile.name).unlink()
 
 
-def test_print_pymol_script(input_pdb_structure, prodigy_class):
-    res_a = input_pdb_structure[0]["A"][(" ", 931, " ")]
-    res_b = input_pdb_structure[0]["B"][(" ", 6, " ")]
+def test_print_pymol_script(input_model, prodigy_class):
+    res_a = input_model["A"][(" ", 931, " ")]
+    res_b = input_model["B"][(" ", 6, " ")]
     prodigy_class.ic_network = [(res_a, res_b)]
 
     outfile = tempfile.NamedTemporaryFile(delete=False)
@@ -209,26 +210,31 @@ def test_dataset_prediction(compressed_dataset_f, expected_dataset_json):
         parsed_structure = parser.get_structure(s_name, handle)
         assert isinstance(parsed_structure, Structure)
 
-        s = validate_structure(parsed_structure, selection=["A", "B"])
+        models = validate_structure(parsed_structure, selection=["A", "B"])
 
         # Test for structure object
-        assert isinstance(s, Structure)
+        # Check if it's a list and all elements are Model objects
+        assert isinstance(models, list) and all(
+            isinstance(item, Model) for item in models
+        )
+        # assert isinstance(s, list[Model])
 
         #  run prediction and retrieve result dict
-        prod = Prodigy(s, selection=["A", "B"])
-        prod.predict()
-        results = prod.as_dict()
+        for m in models:
+            prod = Prodigy(m, selection=["A", "B"])
+            prod.predict()
+            results = prod.as_dict()
 
-        # check for equality of prdicted interface residues
-        for k in keys_equal:
-            observed_value = results[k]
-            expected_value = expected_data[s_name][k]
-            assert observed_value == pytest.approx(expected_value)
+            # check for equality of prdicted interface residues
+            for k in keys_equal:
+                observed_value = results[k]
+                expected_value = expected_data[s_name][k]
+                assert observed_value == pytest.approx(expected_value)
 
-        # check that NIS and binding afinity values are within 2% of
-        #  expected values and add diffs for summary
-        for k in diffs.keys():
-            delta = abs(results[k] / expected_data[s_name][k] - 1)
-            # assume a difference of less then 2%
-            assert delta == pytest.approx(0, abs=0.02)
-            diffs[k].append(delta)
+            # check that NIS and binding afinity values are within 2% of
+            #  expected values and add diffs for summary
+            for k in diffs.keys():
+                delta = abs(results[k] / expected_data[s_name][k] - 1)
+                # assume a difference of less then 2%
+                assert delta == pytest.approx(0, abs=0.02)
+                diffs[k].append(delta)

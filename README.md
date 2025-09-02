@@ -38,13 +38,20 @@ Or in a directory containing multiple molecules:
 prodigy <directory_with_molecules>
 ```
 
+Or using a multi-model input PDB file (an ensemble)
+
+```bash
+prodigy <multi_model.pdb>
+```
+
+> If you are running several structures, try using the `-np` argument to run
+> in multiple processors
+
 To get a list of all the possible options.
 
 ```bash
-
 $ prodigy -h
-usage: prodigy [-h] [--distance-cutoff DISTANCE_CUTOFF] [--acc-threshold ACC_THRESHOLD]
-               [--temperature TEMPERATURE] [--contact_list] [--pymol_selection] [-q]
+usage: prodigy [-h] [--distance-cutoff DISTANCE_CUTOFF] [--acc-threshold ACC_THRESHOLD] [--temperature TEMPERATURE] [--contact_list] [--pymol_selection] [-q] [-np NUMBER_OF_PROCESSORS]
                [--selection A B [A,B C ...]]
                input_path
 
@@ -66,6 +73,8 @@ options:
   --contact_list        Output a list of contacts
   --pymol_selection     Output a script to highlight the interface (pymol)
   -q, --quiet           Outputs only the predicted affinity value
+  -np, --number-of-processors NUMBER_OF_PROCESSORS
+                        Number of processors to use (default: 1)
 
 Selection Options:
 
@@ -83,8 +92,6 @@ Selection Options:
   --selection A B => Contacts calculated (only) between chains A and B.
   --selection A,B C => Contacts calculated (only) between     chains A and C; and B and C.
   --selection A B C => Contacts calculated (only) between     chains A and B; B and C; and A and C.
-
-  --selection A B [A,B C ...]
 ```
 
 ## Example single structure
@@ -127,10 +134,11 @@ curl -o input/2oob.pdb https://files.rcsb.org/download/2OOB.pdb
 curl -o input/1ppe.pdb https://files.rcsb.org/download/1PPE.pdb
 ```
 
-Run `prodigy` with the `quiet` option, so it is easier to parse the output later:
+Run `prodigy` with the `quiet` option, so it is easier to parse the output later
+and run it with 2 processors via the `np` option.
 
 ```bash
-$ prodigy -q input/
+$ prodigy -q -np 2 input/
 3bzd  -9.373
 2oob  -6.230
 1ppe -14.727

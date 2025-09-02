@@ -39,27 +39,28 @@ def test_validate_structure_pdb(input_structure_pdb):
     assert isinstance(structure, Structure)
 
     result = validate_structure(structure)
-    assert result == structure
+    assert result == structure.child_list
 
 
-def test_validate_stucture_cif(input_structure_cif):
+def test_validate_structure_cif(input_structure_cif):
 
     parser = MMCIFParser()
     structure = parser.get_structure("test_structure", input_structure_cif)
     assert isinstance(structure, Structure)
 
     result = validate_structure(structure)
-    assert result == structure
+    assert result == structure.child_list
 
 
 def test_parse_structure_pdb(input_structure_pdb):
 
     parser = PDBParser()
     structure = parser.get_structure(input_structure_pdb.stem, input_structure_pdb)
+    assert isinstance(structure, Structure)
 
     result, num_chains, num_res = parse_structure(input_structure_pdb)
 
-    assert result == structure
+    assert result == structure.child_list
     assert num_chains == 2
     assert num_res == 116
 
@@ -68,9 +69,10 @@ def test_parse_structure_cif(input_structure_cif):
 
     parser = MMCIFParser()
     structure = parser.get_structure(input_structure_cif.stem, input_structure_cif)
+    assert isinstance(structure, Structure)
 
     result, num_chains, num_res = parse_structure(input_structure_cif)
 
-    assert result == structure
+    assert result == structure.child_list
     assert num_chains == 2
     assert num_res == 116

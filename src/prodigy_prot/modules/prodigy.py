@@ -2,6 +2,7 @@ import sys
 from io import TextIOWrapper
 from typing import Optional, TextIO, Union
 
+from Bio.PDB.Model import Model
 from Bio.PDB.NeighborSearch import NeighborSearch
 from Bio.PDB.Structure import Structure
 
@@ -12,12 +13,12 @@ from prodigy_prot.modules.utils import dg_to_kd
 
 
 def calculate_ic(
-    struct: Structure, d_cutoff: float = 5.5, selection: Optional[dict[str, int]] = None
+    model: Model, d_cutoff: float = 5.5, selection: Optional[dict[str, int]] = None
 ) -> list:
     """
     Calculates intermolecular contacts in a parsed struct object.
     """
-    atom_list = list(struct.get_atoms())
+    atom_list = list(model.get_atoms())
     ns = NeighborSearch(atom_list)
     all_list = ns.search_all(radius=d_cutoff, level="R")
 
@@ -114,16 +115,18 @@ class Prodigy:
     # init parameters
     def __init__(
         self,
-        struct_obj: Structure,
+        model: Model,
+        name: str = "",
         selection: Optional[list[str]] = None,
         temp: float = 25.0,
     ):
         self.temp = float(temp)
         if selection is None:
-            self.selection = [chain.id for chain in struct_obj.get_chains()]
+            self.selection = [chain.id for chain in model.get_chains()]
         else:
             self.selection = selection
-        self.structure = struct_obj
+        self.model = model
+        self.name = name
         self.ic_network: list = []
         self.bins: dict[str, float] = {
             "CC": 0.0,
@@ -163,14 +166,14 @@ class Prodigy:
 
         # Contacts
         self.ic_network = calculate_ic(
-            self.structure, d_cutoff=distance_cutoff, selection=selection_dict
+            self.model, d_cutoff=distance_cutoff, selection=selection_dict
         )
         
         self.bins = analyse_contacts(self.ic_network)
         print(self.bins)
 
         # SASA
-        _, cmplx_sasa = execute_freesasa_api(self.structure)
+        _, cmplx_sasa = execute_freesasa_api(self.model)
         self.nis_a, self.nis_c, self.nis_p = analyse_nis(cmplx_sasa, acc_threshold=acc_threshold)
 
         # Affinity Calculation
@@ -186,7 +189,7 @@ class Prodigy:
 
     def as_dict(self) -> dict:
         return_dict = {
-            "structure": self.structure.id,
+            "model": self.model.id,
             "selection": self.selection,
             "temp": self.temp,
             "ICs": len(self.ic_network),
@@ -207,7 +210,7 @@ class Prodigy:
             handle = sys.stdout
 
         if quiet:
-            handle.write("{0}\t{1:8.3f}\n".format(self.structure.id, self.ba_val))
+            handle.write("{0}\t{1:8.3f}\n".format(self.name, self.ba_val))
         else:
             handle.write(
                 "[+] No. of intermolecular contacts: {0}\n".format(len(self.ic_network))

@@ -5,6 +5,7 @@ Functions to execute freesasa and parse its output.
 import os
 
 import freesasa
+from Bio.PDB.Model import Model
 from Bio.PDB.Structure import Structure
 from freesasa import Classifier, calc, structureFromBioPDB
 
@@ -14,7 +15,7 @@ from prodigy_prot.modules.aa_properties import rel_asa
 freesasa.setVerbosity(freesasa.nowarnings)
 
 
-def execute_freesasa_api(structure: Structure) -> tuple[dict, dict]:
+def execute_freesasa_api(model: Model) -> tuple[dict, dict]:
     """
     Calls freesasa using its Python API and returns
     per-residue accessibilities.
@@ -26,9 +27,14 @@ def execute_freesasa_api(structure: Structure) -> tuple[dict, dict]:
 
     classifier = Classifier(str(NACCESS_CONFIG))
 
+    # NOTE: `structureFromBioPDB` requires a Structure object
+    #  so here build one from a model
+    s = Structure(model.id)
+    s.add(model)
+
     try:
         struct = structureFromBioPDB(
-            structure,
+            s,
             classifier,
         )
         result = calc(struct)
