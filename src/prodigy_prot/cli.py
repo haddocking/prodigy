@@ -10,6 +10,8 @@ from pathlib import Path
 
 from Bio.PDB.Model import Model
 
+from io import StringIO
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from prodigy_prot.modules.parsers import parse_structure
 from prodigy_prot.modules.prodigy import Prodigy
 
@@ -52,6 +54,14 @@ ap.add_argument(
     "--quiet",
     action="store_true",
     help="Outputs only the predicted affinity value",
+)
+ap.add_argument(
+    "-np",
+    "--number-of-processors",
+    type=int,
+    action="store",
+    help="Number of processors to use (default: 1)",
+    default=1,
 )
 _co_help = """
 By default, all intermolecular contacts are taken into consideration,
@@ -98,29 +108,75 @@ def main():
         log.error(f"Input path {struct_path} is neither a valid file nor a directory")
         sys.exit(1)
 
+    # Collect all tasks
+    tasks = []
     for input_f in input_list:
-        models: list[Model]
-        n_chains: int
-        n_res: int
-        models, n_chains, n_res = parse_structure(str(input_f))
+        models, _, _ = parse_structure(str(input_f))
         identifier = Path(input_f).stem
+        struct_path = Path(input_f)
 
         for model in models:
-            log.info("#" * 42)
-            log.info(
-                f"[+] Processing structure {identifier}_model{model.id} ({n_chains} chains, {n_res} residues)"
-            )
-            prodigy = Prodigy(model, args.selection, args.temperature)
-            prodigy.predict(
-                distance_cutoff=args.distance_cutoff, acc_threshold=args.acc_threshold
-            )
-            prodigy.print_prediction(quiet=args.quiet)
+            tasks.append((model, identifier, args, struct_path))
 
-            if args.contact_list:
-                prodigy.print_contacts(outfile=str(struct_path.with_suffix(".ic")))
+    # Execute in parallel
+    total_tasks = len(tasks)
+    if total_tasks == 0:
+        log.error("No valid structures found")
+        sys.exit(1)
+    max_workers = min(args.number_of_processors, total_tasks)
+    log.info(f"[+] Executing {total_tasks} task(s) in total")
+    if max_workers != args.number_of_processors:
+        log.info("[+] Adjusting number of processors based on number of tasks")
+        log.info(
+            f"[+] Using {max_workers} processor(s) instead of {args.number_of_processors}"
+        )
 
-            if args.pymol_selection:
-                prodigy.print_pymol_script(outfile=str(struct_path.with_suffix(".pml")))
+    # Execute and collect results
+    results = []
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(process_model, *task) for task in tasks]
+        for future in as_completed(futures):
+            try:
+                result = future.result()
+                results.append(result)
+            except Exception as e:
+                log.error(f"Error processing model: {e}")
+
+    # Sort by identifier, then model.id
+    results.sort(key=lambda x: (x[0], x[1]))
+    # Print all outputs sequentially
+    for identifier, _, output in results:
+        print(output, end="")
+
+
+def process_model(model: Model, identifier: str, args: argparse.Namespace, struct_path):
+    """Process a single model"""
+    # Capture stdout
+    output_buffer = StringIO()
+
+    old_stdout = sys.stdout
+    sys.stdout = output_buffer
+    try:
+        if not args.quiet:
+            print("#" * 42)
+            print(f"[+] Processing structure {identifier}_model{model.id}")
+        prodigy = Prodigy(model, args.selection, args.temperature)
+        prodigy.predict(
+            distance_cutoff=args.distance_cutoff, acc_threshold=args.acc_threshold
+        )
+        prodigy.print_prediction(quiet=args.quiet)
+    finally:
+        sys.stdout = old_stdout
+
+    if args.contact_list:
+        contact_list_f = struct_path.with_suffix(".ic")
+        prodigy.print_contacts(outfile=str(contact_list_f))
+
+    if args.pymol_selection:
+        pymol_script_f = struct_path.with_suffix(".pml")
+        prodigy.print_pymol_script(outfile=str(pymol_script_f))
+
+    return identifier, model.id, output_buffer.getvalue()
 
 
 if __name__ == "__main__":
