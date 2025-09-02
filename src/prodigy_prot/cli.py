@@ -112,10 +112,10 @@ def main():
     tasks = []
     for input_f in input_list:
         models, _, _ = parse_structure(str(input_f))
-        identifier = Path(input_f).stem
         struct_path = Path(input_f)
 
         for model in models:
+            identifier = f"{struct_path.stem}_model{model.id}"
             tasks.append((model, identifier, args, struct_path))
 
     # Execute in parallel
@@ -159,8 +159,13 @@ def process_model(model: Model, identifier: str, args: argparse.Namespace, struc
     try:
         if not args.quiet:
             print("#" * 42)
-            print(f"[+] Processing structure {identifier}_model{model.id}")
-        prodigy = Prodigy(model, args.selection, args.temperature)
+            print(f"[+] Processing structure {identifier}")
+        prodigy = Prodigy(
+            model=model,
+            name=identifier,
+            selection=args.selection,
+            temp=args.temperature,
+        )
         prodigy.predict(
             distance_cutoff=args.distance_cutoff, acc_threshold=args.acc_threshold
         )

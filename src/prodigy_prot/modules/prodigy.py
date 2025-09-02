@@ -104,6 +104,7 @@ class Prodigy:
     def __init__(
         self,
         model: Model,
+        name: str = "",
         selection: Optional[list[str]] = None,
         temp: float = 25.0,
     ):
@@ -113,6 +114,7 @@ class Prodigy:
         else:
             self.selection = selection
         self.model = model
+        self.name = name
         self.ic_network: list = []
         self.bins: dict[str, float] = {
             "CC": 0.0,
@@ -190,7 +192,7 @@ class Prodigy:
             handle = sys.stdout
 
         if quiet:
-            handle.write("{0}\t{1:8.3f}\n".format(self.model.id, self.ba_val))
+            handle.write("{0}\t{1:8.3f}\n".format(self.name, self.ba_val))
         else:
             handle.write(
                 "[+] No. of intermolecular contacts: {0}\n".format(len(self.ic_network))
