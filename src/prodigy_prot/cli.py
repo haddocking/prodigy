@@ -6,12 +6,12 @@ import argparse
 import logging
 import sys
 from argparse import RawTextHelpFormatter
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from io import StringIO
 from pathlib import Path
 
 from Bio.PDB.Model import Model
 
-from io import StringIO
-from concurrent.futures import ProcessPoolExecutor, as_completed
 from prodigy_prot.modules.parsers import parse_structure
 from prodigy_prot.modules.prodigy import Prodigy
 
