@@ -8,10 +8,9 @@ import sys
 from argparse import RawTextHelpFormatter
 from pathlib import Path
 
-from Bio.PDB.Structure import Structure
+from Bio.PDB.Model import Model
 
-from prodigy_prot.modules.parsers import (get_parser, parse_structure,
-                                          validate_structure)
+from prodigy_prot.modules.parsers import parse_structure
 from prodigy_prot.modules.prodigy import Prodigy
 
 # setup logging
@@ -100,27 +99,28 @@ def main():
         sys.exit(1)
 
     for input_f in input_list:
-        structure, n_chains, n_res = parse_structure(str(input_f))
+        models: list[Model]
+        n_chains: int
+        n_res: int
+        models, n_chains, n_res = parse_structure(str(input_f))
+        identifier = Path(input_f).stem
 
-        if len(input_list) > 1:
+        for model in models:
             log.info("#" * 42)
-
-        log.info(
-            "[+] Parsed structure file {0} ({1} chains, {2} residues)".format(
-                structure.id, n_chains, n_res
+            log.info(
+                f"[+] Processing structure {identifier}_model{model.id} ({n_chains} chains, {n_res} residues)"
             )
-        )
-        prodigy = Prodigy(structure, args.selection, args.temperature)
-        prodigy.predict(
-            distance_cutoff=args.distance_cutoff, acc_threshold=args.acc_threshold
-        )
-        prodigy.print_prediction(quiet=args.quiet)
+            prodigy = Prodigy(model, args.selection, args.temperature)
+            prodigy.predict(
+                distance_cutoff=args.distance_cutoff, acc_threshold=args.acc_threshold
+            )
+            prodigy.print_prediction(quiet=args.quiet)
 
-        if args.contact_list:
-            prodigy.print_contacts(outfile=str(struct_path.with_suffix(".ic")))
+            if args.contact_list:
+                prodigy.print_contacts(outfile=str(struct_path.with_suffix(".ic")))
 
-        if args.pymol_selection:
-            prodigy.print_pymol_script(outfile=str(struct_path.with_suffix(".pml")))
+            if args.pymol_selection:
+                prodigy.print_pymol_script(outfile=str(struct_path.with_suffix(".pml")))
 
 
 if __name__ == "__main__":
