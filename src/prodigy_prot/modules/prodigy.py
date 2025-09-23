@@ -4,7 +4,7 @@ from typing import Optional, TextIO, Union
 
 from Bio.PDB.Model import Model
 from Bio.PDB.NeighborSearch import NeighborSearch
-from Bio.PDB.Structure import Structure
+#from Bio.PDB.Structure import Structure
 
 from prodigy_prot.modules import aa_properties
 from prodigy_prot.modules.freesasa_tools import execute_freesasa_api
@@ -106,8 +106,6 @@ def analyse_nis(sasa_dict: dict, acc_threshold: float = 0.05) -> list[float]:
             count[aa_index] += 1
 
     percentages = [100.0 * x / sum(count) for x in count]
-    #print('fraction of hydrophobic buried could be a feature, but probably better do actual BSA')
-    #print('[+] No. of buried interface residues: {0}'.format(sum(count)))
     return percentages
 
 
@@ -170,7 +168,6 @@ class Prodigy:
         )
         
         self.bins = analyse_contacts(self.ic_network)
-        print(self.bins)
 
         # SASA
         _, cmplx_sasa = execute_freesasa_api(self.model)
@@ -202,7 +199,7 @@ class Prodigy:
         return_dict.update(self.bins)
         return return_dict
 
-    def print_prediction(self, outfile: str = "", quiet: bool = False) -> None:
+    def print_prediction(self, outfile: str = "", quiet: bool = False, showall: bool = False) -> None:
         handle: Union[TextIOWrapper, TextIO]
         if outfile:
             handle = open(outfile, "w")
@@ -212,55 +209,28 @@ class Prodigy:
         if quiet:
             handle.write("{0}\t{1:8.3f}\n".format(self.name, self.ba_val))
         else:
-            handle.write(
-                "[+] No. of intermolecular contacts: {0}\n".format(len(self.ic_network))
-            )
-            handle.write(
-                "[+] No. of Charged-Charged contacts: {0}\n".format(self.bins["CC"])
-            )
-            handle.write(
-                "[+] No. of Charged-Polar contacts: {0}\n".format(self.bins["CP"])
-            )
-            handle.write(
-                "[+] No. of Charged-Apolar contacts: {0}\n".format(self.bins["AC"])
-            )
-            handle.write(
-                "[+] No. of Polar-Polar contacts: {0}\n".format(self.bins["PP"])
-            )
-            handle.write(
-                "[+] No. of Apolar-Polar contacts: {0}\n".format(self.bins["AP"])
-            )
-            handle.write(
-                "[+] No. of Apolar-Apolar contacts: {0}\n".format(self.bins["AA"])
-            )
-            
-            handle.write(
-                "[+] No. of hydrophiLic-hydrophiLic contacts: {0}\n".format(self.bins["LL"])
-            )
-            handle.write(
-                "[+] No. of hydrophoBic-hydrophiLic contacts: {0}\n".format(self.bins["BL"])
-            )
-            handle.write(
-                "[+] No. of hydrophoBic-hydrophoBic contacts: {0}\n".format(self.bins["BB"])
-            )
-            
-            handle.write(
-                "[+] Percentage of Polar NIS residues: {0:3.2f}\n".format(self.nis_p)
-            )
-            handle.write(
-                "[+] Percentage of Apolar NIS residues: {0:3.2f}\n".format(self.nis_a)
-            )
-            handle.write(
-                "[+] Percentage of Charged NIS residues: {0:3.2f}\n".format(self.nis_c)
-            )
-            handle.write(
-                "[++] predicted binding "
-                "affinity (kcal.mol-1): {0:8.1f}\n".format(self.ba_val)
-            )
-            handle.write(
-                "[++] predicted dissociation constant (M) at {:.1f}˚C:"
-                " {:8.1e}\n".format(self.temp, self.kd_val)
-            )
+            # Collect output lines in order
+            lines = []
+            lines.append(f"[+] No. of intermolecular contacts: {len(self.ic_network)}\n")
+            lines.append(f"[+] No. of Charged-Charged contacts: {self.bins['CC']}\n")
+            lines.append(f"[+] No. of Charged-Polar contacts: {self.bins['CP']}\n")
+            lines.append(f"[+] No. of Charged-Apolar contacts: {self.bins['AC']}\n")
+            lines.append(f"[+] No. of Polar-Polar contacts: {self.bins['PP']}\n")
+            lines.append(f"[+] No. of Apolar-Polar contacts: {self.bins['AP']}\n")
+            lines.append(f"[+] No. of Apolar-Apolar contacts: {self.bins['AA']}\n")
+
+            if showall:
+                lines.append(f"[+] No. of hydrophiLic-hydrophiLic contacts: {self.bins['LL']}\n")
+                lines.append(f"[+] No. of hydrophoBic-hydrophiLic contacts: {self.bins['BL']}\n")
+                lines.append(f"[+] No. of hydrophoBic-hydrophoBic contacts: {self.bins['BB']}\n")
+                lines.append(f"[+] Percentage of Polar NIS residues: {self.nis_p:3.2f}\n")
+
+            lines.append(f"[+] Percentage of Apolar NIS residues: {self.nis_a:3.2f}\n")
+            lines.append(f"[+] Percentage of Charged NIS residues: {self.nis_c:3.2f}\n")
+            lines.append(f"[++] predicted binding affinity (kcal.mol-1): {self.ba_val:8.1f}\n")
+            lines.append(f"[++] predicted dissociation constant (M) at {self.temp:.1f}˚C: {self.kd_val:8.1e}\n")
+
+            handle.writelines(lines)
 
         if handle is not sys.stdout:
             handle.close()

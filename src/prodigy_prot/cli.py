@@ -56,6 +56,12 @@ ap.add_argument(
     help="Outputs only the predicted affinity value",
 )
 ap.add_argument(
+    "-s",
+    "--showall",
+    action="store_true",
+    help="Outputs all original prodigy features but BSA",
+)
+ap.add_argument(
     "-np",
     "--number-of-processors",
     type=int,
@@ -87,6 +93,12 @@ sel_opt.add_argument("--selection", nargs="+", metavar=("A B", "A,B C"))
 
 def main():
     args = ap.parse_args()
+    log.setLevel(logging.ERROR if args.quiet else logging.INFO)
+
+    if args.quiet and args.showall:
+        log.error("Error: --quiet (-q) and --showall (-s) are mutually exclusive arguments")
+        sys.exit(1)
+    
     log.setLevel(logging.ERROR if args.quiet else logging.INFO)
 
     struct_path = Path(args.input_path)
@@ -169,7 +181,7 @@ def process_model(model: Model, identifier: str, args: argparse.Namespace, struc
         prodigy.predict(
             distance_cutoff=args.distance_cutoff, acc_threshold=args.acc_threshold
         )
-        prodigy.print_prediction(quiet=args.quiet)
+        prodigy.print_prediction(quiet=args.quiet, showall=args.showall)
     finally:
         sys.stdout = old_stdout
 
