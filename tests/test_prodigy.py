@@ -91,7 +91,6 @@ def test_analyse_contacts(input_model):
         "BL": 0.0,
         "BB": 0.0
     }
-    
     assert result == expected_output
 
 
