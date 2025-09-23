@@ -59,7 +59,7 @@ ap.add_argument(
     "-s",
     "--showall",
     action="store_true",
-    help="Outputs all original prodigy features but BSA",
+    help="Outputs all original prodigy features but BSA (mutually exclusive with `-q`)",
 )
 ap.add_argument(
     "-np",
@@ -98,7 +98,6 @@ def main():
     if args.quiet and args.showall:
         log.error("Error: --quiet (-q) and --showall (-s) are mutually exclusive arguments")
         sys.exit(1)
-    
     log.setLevel(logging.ERROR if args.quiet else logging.INFO)
 
     struct_path = Path(args.input_path)

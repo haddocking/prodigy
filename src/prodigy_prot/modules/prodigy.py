@@ -166,9 +166,8 @@ class Prodigy:
         self.ic_network = calculate_ic(
             self.model, d_cutoff=distance_cutoff, selection=selection_dict
         )
-        
-        self.bins = analyse_contacts(self.ic_network)
 
+        self.bins = analyse_contacts(self.ic_network)
         # SASA
         _, cmplx_sasa = execute_freesasa_api(self.model)
         self.nis_a, self.nis_c, self.nis_p = analyse_nis(cmplx_sasa, acc_threshold=acc_threshold)

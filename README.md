@@ -73,6 +73,7 @@ options:
   --contact_list        Output a list of contacts
   --pymol_selection     Output a script to highlight the interface (pymol)
   -q, --quiet           Outputs only the predicted affinity value
+  -s, --showall         Outputs all original prodigy features but BSA (mutually exclusive with `-q`)
   -np, --number-of-processors NUMBER_OF_PROCESSORS
                         Number of processors to use (default: 1)
 
