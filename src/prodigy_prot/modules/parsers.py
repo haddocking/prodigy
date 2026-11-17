@@ -33,6 +33,22 @@ def ignore(r):
     return r.id[0][0] == "W" or r.id[0][0] == "H"
 
 
+# Force-field (CHARMM, AMBER) names of standard residues
+FORCEFIELD_RESNAMES = {
+    "HSD": "HIS",
+    "HSE": "HIS",
+    "HSP": "HIS",
+    "HID": "HIS",
+    "HIE": "HIS",
+    "HIP": "HIS",
+    "CYX": "CYS",
+    "CYM": "CYS",
+    "ASH": "ASP",
+    "GLH": "GLU",
+    "LYN": "LYS",
+}
+
+
 def validate_structure(
     input_strcture_obj: Structure,
     selection: Optional[list[str]] = None,
@@ -90,6 +106,7 @@ def validate_structure(
             res_list = list(model.get_residues())
 
             for res in res_list:
+                res.resname = FORCEFIELD_RESNAMES.get(res.resname, res.resname)
                 if ignore(res):
                     chain = res.parent
                     assert chain is not None
