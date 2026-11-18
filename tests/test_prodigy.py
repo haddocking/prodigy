@@ -131,7 +131,12 @@ def test_prodigy_print_prediction(prodigy_class):
     assert Path(outfile.name).stat().st_size == 0
 
     prodigy_class.print_prediction(outfile.name)
-    assert Path(outfile.name).stat().st_size != 0
+    # Labels as in 2.4.0, read by scripts that parse the output
+    output = Path(outfile.name).read_text()
+    assert "[+] No. of charged-charged contacts:" in output
+    assert "[+] Percentage of apolar NIS residues:" in output
+    assert "[++] Predicted binding affinity (kcal.mol-1):" in output
+    assert "[++] Predicted dissociation constant (M) at" in output
 
     Path(outfile.name).unlink()
 
