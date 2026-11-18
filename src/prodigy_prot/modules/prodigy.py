@@ -211,12 +211,12 @@ class Prodigy:
             # Collect output lines in order
             lines = []
             lines.append(f"[+] No. of intermolecular contacts: {len(self.ic_network)}\n")
-            lines.append(f"[+] No. of Charged-Charged contacts: {self.bins['CC']}\n")
-            lines.append(f"[+] No. of Charged-Polar contacts: {self.bins['CP']}\n")
-            lines.append(f"[+] No. of Charged-Apolar contacts: {self.bins['AC']}\n")
-            lines.append(f"[+] No. of Polar-Polar contacts: {self.bins['PP']}\n")
-            lines.append(f"[+] No. of Apolar-Polar contacts: {self.bins['AP']}\n")
-            lines.append(f"[+] No. of Apolar-Apolar contacts: {self.bins['AA']}\n")
+            lines.append(f"[+] No. of charged-charged contacts: {self.bins['CC']}\n")
+            lines.append(f"[+] No. of charged-polar contacts: {self.bins['CP']}\n")
+            lines.append(f"[+] No. of charged-apolar contacts: {self.bins['AC']}\n")
+            lines.append(f"[+] No. of polar-polar contacts: {self.bins['PP']}\n")
+            lines.append(f"[+] No. of apolar-polar contacts: {self.bins['AP']}\n")
+            lines.append(f"[+] No. of apolar-apolar contacts: {self.bins['AA']}\n")
 
             if showall:
                 lines.append(f"[+] No. of hydrophiLic-hydrophiLic contacts: {self.bins['LL']}\n")
@@ -224,10 +224,10 @@ class Prodigy:
                 lines.append(f"[+] No. of hydrophoBic-hydrophoBic contacts: {self.bins['BB']}\n")
                 lines.append(f"[+] Percentage of Polar NIS residues: {self.nis_p:3.2f}\n")
 
-            lines.append(f"[+] Percentage of Apolar NIS residues: {self.nis_a:3.2f}\n")
-            lines.append(f"[+] Percentage of Charged NIS residues: {self.nis_c:3.2f}\n")
-            lines.append(f"[++] predicted binding affinity (kcal.mol-1): {self.ba_val:8.1f}\n")
-            lines.append(f"[++] predicted dissociation constant (M) at {self.temp:.1f}˚C: {self.kd_val:8.1e}\n")
+            lines.append(f"[+] Percentage of apolar NIS residues: {self.nis_a:3.2f}\n")
+            lines.append(f"[+] Percentage of charged NIS residues: {self.nis_c:3.2f}\n")
+            lines.append(f"[++] Predicted binding affinity (kcal.mol-1): {self.ba_val:8.1f}\n")
+            lines.append(f"[++] Predicted dissociation constant (M) at {self.temp:.1f}˚C: {self.kd_val:8.1e}\n")
 
             handle.writelines(lines)
 
