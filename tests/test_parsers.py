@@ -52,6 +52,16 @@ def test_validate_structure_cif(input_structure_cif):
     assert result == structure.child_list
 
 
+def test_validate_structure_forcefield_resnames(input_structure_pdb):
+
+    structure = PDBParser().get_structure("test_structure", input_structure_pdb)
+    his = next(r for r in structure.get_residues() if r.resname == "HIS")
+    his.resname = "HSD"
+
+    validate_structure(structure)
+    assert his.resname == "HIS"
+
+
 def test_parse_structure_pdb(input_structure_pdb):
 
     parser = PDBParser()
